@@ -1,20 +1,40 @@
 
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 export const useScheduleDataStore = defineStore('scheduleData', () => {
-  const faculty = ref('')
-  const form = ref('')
-  const course = ref('')
-  const group = ref('')
-
   const arrFormOnFaculty = ref([])
   const nowFormOnFaculty = ref('')
+  const arrGroup = ref([])
+  const nowNameGroup = ref('')
+  const arrCourses = ref([])
+  const nowCourseOnFormAndFaculty = ref('')
+  const arrSchedule = ref([])
+
+  const currentDate = ref('');
+  const classrooms = ref('71')
+
+// Фунция занят или нет кабинет
+
+
+// Функция получения даты пользователя в данный момент
+function getUserCurrentDate() {
+  const today = new Date();
+  currentDate.value = formatDate(today);
+  console.log(currentDate.value);
+}
+
+function formatDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 // Функция передачи из факультета, все формы обучения
   function deliveryToArr(data) {
     for (let i = 0; i < data.length; i++) {
-      arrFormOnFaculty.value.push(data[i])
+      arrFormOnFaculty.value.unshift(data[i])
     }
     console.log(arrFormOnFaculty.value);
   }
@@ -28,15 +48,113 @@ export const useScheduleDataStore = defineStore('scheduleData', () => {
     }
   }
 
+// Функция создания массива курсов из факультета и формы обучения
+function deliveryCourseToArr(data) {
+  for (let i = 0; i < data.length; i++) {
+    arrCourses.value.unshift(data[i])
+  }
+  console.log(arrCourses.value);
+}
+
+// Функция передачи в getGroupOnCourse курса ( 1 курс к примеру и тд )
+  function deliveryToGroupOnCourse(nowCourseRef) {
+    for (let i = 0; i < arrCourses.value.length; i++) {
+      if (nowCourseRef.value !== arrCourses.value[i]) {
+        nowCourseRef.value = arrCourses.value[i]
+      }
+    }
+  }
+
+// Функция создания массива групп из курса и  факультета и формы обучения ( 4 курс, Экономический, Заочная сокращенная)
+function deliveryGroupToArr(data) {
+  for (let i = 0; i < data.length; i++) {
+    arrGroup.value.unshift(data[i])
+  }
+  console.log(arrGroup.value);
+}
+
+// Функция передачи названия группы в getScheduleGroup ( 2121зс МН )
+function deliveryGroupForSchedule(nowGroup) {
+  for (let i = 0; i < arrGroup.value.length; i++) {
+    if (nowGroup.value !== arrGroup.value[i]) {
+      nowGroup.value = arrGroup.value[i]
+    }
+  }
+}
+
+// Функция создания массива групп из курса и  факультета и формы обучения ( 4 курс, Экономический, Заочная сокращенная)
+function deliveryScheduleInArr(data) {
+      // Перебираем все недели
+    Object.values(data).forEach((week) => {
+      // Перебираем все дни в неделе
+      Object.entries(week).forEach(([dateKey, dayLessons]) => {
+        // Перебираем все пары в дне
+        dayLessons.forEach((lesson) => {
+          // Если subject не пустой (чтобы отфильтровать пустые пары)
+          if (lesson.subject && lesson.subject.trim() !== '') {
+            arrSchedule.value.push({
+              id: lesson.id,
+              date: dateKey,
+              auditorium: lesson.auditorium,
+              time: lesson.time,
+              group_class: lesson.group_class,
+            });
+          }
+        });
+      });
+    });
+console.log(arrSchedule.value);
+}
+
+// Получения расписания групп( 4 курс, Экономический, Заочная сокращенная, 2121зс МН)
+async function getScheduleGroup() {
+  try {
+    deliveryGroupForSchedule(nowNameGroup)
+    console.log(`Какая сейчас группа: ${nowNameGroup.value.name}`);
+    
+    const response = await fetch(`/api/schedule/group-schedules?faculty=Экономический&form=${nowFormOnFaculty.value.name}&course=${nowCourseOnFormAndFaculty.value.name}&group=${nowNameGroup.value.name}`)
+    const data = await response.json()
+    console.log(data);
+    
+    if (arrSchedule.value.length === 0) {
+      deliveryScheduleInArr(data)
+    }
+    
+  } catch (error) {
+    console.error('Ошибка в getCourseOnFaculty:', error)
+  }
+}  
+
+// Получения групп данного курса ( Экономический, дневная, 1 курс )
+  async function getGroupOnCourse() {
+    try {
+      deliveryToGroupOnCourse(nowCourseOnFormAndFaculty)
+      console.log(`Какой сейчас курс: ${nowCourseOnFormAndFaculty.value.name}`);
+      
+      const response = await fetch(`/api/schedule/groups?faculty=Экономический&form=${nowFormOnFaculty.value.name}&course=${nowCourseOnFormAndFaculty.value.name}`)
+      const data = await response.json()
+
+      if (arrGroup.value.length === 0) {
+        deliveryGroupToArr(data)
+      }
+      
+    } catch (error) {
+      console.error('Ошибка в getCourseOnFaculty:', error)
+    }
+  }  
+
 // Получения курсов данного факультета и данной формы обучения ( Экономический, дневная )
   async function getCourseOnFaculty() {
     try {
       deliveryToCourseOnFaculty(nowFormOnFaculty)
-      console.log(nowFormOnFaculty.value);
+      console.log(`Какая сейчас форма обучения: ${nowFormOnFaculty.value.name}`);
       
       const response = await fetch(`/api/schedule/courses?faculty=Экономический&form=${nowFormOnFaculty.value.name}`)
       const data = await response.json()
-      console.log(data);
+      
+      if (arrCourses.value.length === 0) {
+        deliveryCourseToArr(data)
+      }
       
     } catch (error) {
       console.error('Ошибка в getCourseOnFaculty:', error)
@@ -48,7 +166,7 @@ export const useScheduleDataStore = defineStore('scheduleData', () => {
     try {
       const response = await fetch('/api/schedule/forms?faculty=Экономический')
       const data = await response.json()
-      console.log(data)
+      console.log("Какие есть форму обучения?", data)
       
       if (arrFormOnFaculty.value.length === 0) {
         deliveryToArr(data)
@@ -74,6 +192,10 @@ export const useScheduleDataStore = defineStore('scheduleData', () => {
   return {
     getApiScheduleMitso,
     getFormOnFaculty,
-    getCourseOnFaculty
+    getCourseOnFaculty,
+    getGroupOnCourse,
+    getScheduleGroup,
+    getUserCurrentDate,
+    classrooms
   }
 })
