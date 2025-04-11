@@ -14,8 +14,6 @@ export const useScheduleDataStore = defineStore('scheduleData', () => {
   const isBusy = ref(false)
   const classrooms = ref('71')
 
-// Фунция занят или нет кабинет
-
 
 // Функция получения даты пользователя в данный момент
 function getUserCurrentDate() {
@@ -104,42 +102,9 @@ async function getScheduleGroup() {
     console.error('Ошибка в getCourseOnFaculty:', error)
   }
 }  
+ 
 
-// Получения групп данного курса ( Экономический, дневная, 1 курс )
-  async function getGroupOnCourse() {
-    try {
-      deliveryToGroupOnCourse(nowCourseOnFormAndFaculty)
-      console.log(`Какой сейчас курс: ${nowCourseOnFormAndFaculty.value.name}`);
-      
-      const response = await fetch(`/api/schedule/groups?faculty=Экономический&form=${nowFormOnFaculty.value.name}&course=${nowCourseOnFormAndFaculty.value.name}`)
-      const data = await response.json()
 
-      if (arrGroup.value.length === 0) {
-        deliveryGroupToArr(data)
-      }
-      
-    } catch (error) {
-      console.error('Ошибка в getCourseOnFaculty:', error)
-    }
-  }  
-
-// Получения курсов данного факультета и данной формы обучения ( Экономический, дневная )
-  async function getCourseOnFaculty() {
-    try {
-      deliveryToCourseOnFaculty(nowFormOnFaculty)
-      console.log(`Какая сейчас форма обучения: ${nowFormOnFaculty.value.name}`);
-      
-      const response = await fetch(`/api/schedule/courses?faculty=Экономический&form=${nowFormOnFaculty.value.name}`)
-      const data = await response.json()
-      
-      if (arrCourses.value.length === 0) {
-        deliveryCourseToArr(data)
-      }
-      
-    } catch (error) {
-      console.error('Ошибка в getCourseOnFaculty:', error)
-    }
-  }
   
 
   async function getApiScheduleMitso() {
@@ -154,7 +119,6 @@ async function getScheduleGroup() {
 
   return {
     getApiScheduleMitso,
-    getGroupOnCourse,
     getScheduleGroup,
     getUserCurrentDate,
     classrooms,

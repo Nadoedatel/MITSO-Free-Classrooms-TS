@@ -2,8 +2,10 @@
 import { useScheduleDataStore } from "@/stores/getAPI";
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
+import { useGroupOnCourse } from "@/stores/getGroupCourses"
 const testPinia = useScheduleDataStore();
 
+const getGroupCourses = useGroupOnCourse()
 const getCourseFaculty = useCoursesFaculty();
 const getFormsStuding = useFormFaculty();
 </script>
@@ -16,7 +18,7 @@ const getFormsStuding = useFormFaculty();
     <button class="border-2 p-5" @click="getCourseFaculty.getCourseFaculty">
       Получения курсов
     </button>
-    <button class="border-2 p-5" @click="testPinia.getGroupOnCourse">
+    <button class="border-2 p-5" @click="getGroupCourses.getGroupOnCourse">
       Получения групп
     </button>
     <button class="border-2 p-5" @click="testPinia.getScheduleGroup">
