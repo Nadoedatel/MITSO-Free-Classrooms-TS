@@ -1,9 +1,8 @@
 
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import {  ref } from 'vue'
 
 export const useScheduleDataStore = defineStore('scheduleData', () => {
-  const arrFormOnFaculty = ref([])
   const nowFormOnFaculty = ref('')
   const arrGroup = ref([])
   const nowNameGroup = ref('')
@@ -12,6 +11,7 @@ export const useScheduleDataStore = defineStore('scheduleData', () => {
   const arrSchedule = ref([])
 
   const currentDate = ref('');
+  const isBusy = ref(false)
   const classrooms = ref('71')
 
 // Фунция занят или нет кабинет
@@ -31,30 +31,10 @@ function formatDate(date) {
   return `${year}-${month}-${day}`;
 }
 
-// Функция передачи из факультета, все формы обучения
-  function deliveryToArr(data) {
-    for (let i = 0; i < data.length; i++) {
-      arrFormOnFaculty.value.unshift(data[i])
-    }
-    console.log(arrFormOnFaculty.value);
-  }
 
-// Функция передачи в getCourseOnFaculty форму обучения
-  function deliveryToCourseOnFaculty(nowFormRef) {
-    for (let i = 0; i < arrFormOnFaculty.value.length; i++) {
-      if (nowFormRef.value !== arrFormOnFaculty.value[i]) {
-        nowFormRef.value = arrFormOnFaculty.value[i]
-      }
-    }
-  }
 
-// Функция создания массива курсов из факультета и формы обучения
-function deliveryCourseToArr(data) {
-  for (let i = 0; i < data.length; i++) {
-    arrCourses.value.unshift(data[i])
-  }
-  console.log(arrCourses.value);
-}
+
+
 
 // Функция передачи в getGroupOnCourse курса ( 1 курс к примеру и тд )
   function deliveryToGroupOnCourse(nowCourseRef) {
@@ -160,23 +140,6 @@ async function getScheduleGroup() {
       console.error('Ошибка в getCourseOnFaculty:', error)
     }
   }
-
-// Получение форму обучения данного факультета
-  async function getFormOnFaculty() {
-    try {
-      const response = await fetch('/api/schedule/forms?faculty=Экономический')
-      const data = await response.json()
-      console.log("Какие есть форму обучения?", data)
-      
-      if (arrFormOnFaculty.value.length === 0) {
-        deliveryToArr(data)
-      }
-      
-    } catch (error) {
-      console.error('Ошибка в useScheduleDataStore:', error)
-    }
-  }
-
   
 
   async function getApiScheduleMitso() {
@@ -191,11 +154,10 @@ async function getScheduleGroup() {
 
   return {
     getApiScheduleMitso,
-    getFormOnFaculty,
-    getCourseOnFaculty,
     getGroupOnCourse,
     getScheduleGroup,
     getUserCurrentDate,
-    classrooms
+    classrooms,
+    isBusy
   }
 })
