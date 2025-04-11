@@ -31,6 +31,6 @@ export const useFormFaculty = defineStore("formFaculty", () => {
 
   return {
     getFormOnFaculty,
-    arrFormOnFaculty
+    arrFormOnFaculty,
   };
 });

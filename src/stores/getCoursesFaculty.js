@@ -15,20 +15,18 @@ export const useCoursesFaculty = defineStore("coursesFaculty", () => {
   function setCurrentForm(form) {
     if (form) {
       nowFormOnFaculty.value = form;
-      
     } else if (availableForms.value.length > 0) {
       nowFormOnFaculty.value = availableForms.value[0];
     }
   }
 
-
   // Получения курсов данного факультета и данной формы обучения ( Экономический, дневная )
   async function getCourseFaculty() {
     try {
       if (availableForms.value.length === 0) {
-        await formFacultyStore.getFormOnFaculty();        
+        await formFacultyStore.getFormOnFaculty();
       }
-        
+
       if (!nowFormOnFaculty.value) {
         setCurrentForm();
       }
@@ -60,6 +58,6 @@ export const useCoursesFaculty = defineStore("coursesFaculty", () => {
     setCurrentForm,
     nowFormOnFaculty,
     arrCourses,
-    availableForms
+    availableForms,
   };
 });
