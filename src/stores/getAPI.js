@@ -6,19 +6,6 @@ export const useScheduleDataStore = defineStore("scheduleData", () => {
   const isBusy = ref(false);
   const classrooms = ref("71");
 
-  // Функция получения даты пользователя в данный момент
-  function getUserCurrentDate() {
-    const today = new Date();
-    currentDate.value = formatDate(today);
-    console.log(currentDate.value);
-  }
-
-  function formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
 
   async function getApiScheduleMitso() {
     try {
@@ -34,8 +21,5 @@ export const useScheduleDataStore = defineStore("scheduleData", () => {
 
   return {
     getApiScheduleMitso,
-    getUserCurrentDate,
-    classrooms,
-    isBusy,
   };
 });

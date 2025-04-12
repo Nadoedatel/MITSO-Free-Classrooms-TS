@@ -4,8 +4,11 @@ import { useFormFaculty } from "@/stores/getFormFaculty";
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useGroupOnCourse } from "@/stores/getGroupCourses"
 import { useScheduleGroup } from "@/stores/getScheduleGroup"
-const testPinia = useScheduleDataStore();
+import { useCheckBusyAuditorium } from "@/stores/checkBusyAuditorium"
+import { useUserDate } from "@/stores/getUserDate"
 
+const getUserDate = useUserDate()
+const checkBusyAuditorium = useCheckBusyAuditorium()
 const getScheduleGroup = useScheduleGroup()
 const getGroupCourses = useGroupOnCourse()
 const getCourseFaculty = useCoursesFaculty();
@@ -28,12 +31,12 @@ const getFormsStuding = useFormFaculty();
     </button>
   </div>
   <div
-    @click="testPinia.getUserCurrentDate()"
+    @click="checkBusyAuditorium.loadSchedule"
     :class="{
       'bg-red-700': false,
       'bg-green-700': true,
     }"
   >
-    <p class="border-2 p-5">{{ testPinia.classrooms }}</p>
+    <p class="border-2 p-5">{{ getUserDate.classrooms }}</p>
   </div>
 </template>
