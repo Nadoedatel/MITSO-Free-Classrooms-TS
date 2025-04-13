@@ -1,13 +1,13 @@
 <script setup>
-import { useScheduleDataStore } from "@/stores/getAPI";
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useGroupOnCourse } from "@/stores/getGroupCourses"
 import { useScheduleGroup } from "@/stores/getScheduleGroup"
 import { useCheckBusyAuditorium } from "@/stores/checkBusyAuditorium"
-import { useUserDate } from "@/stores/getUserDate"
+import { useAuditorium } from "@/stores/objectAuditorium"
 
-const getUserDate = useUserDate()
+
+const auditoriumStore = useAuditorium()
 const checkBusyAuditorium = useCheckBusyAuditorium()
 const getScheduleGroup = useScheduleGroup()
 const getGroupCourses = useGroupOnCourse()
@@ -29,14 +29,16 @@ const getFormsStuding = useFormFaculty();
     <button class="border-2 p-5" @click="getScheduleGroup.getScheduleGroup">
       Получения расписание группы
     </button>
+    <button class="border-2 p-5" @click="checkBusyAuditorium.loadSchedule">Получить расписание сразу</button>
+    <button class="border-2 p-5" @click="checkBusyAuditorium.initFullSchedule">Инициализация объекта аудитории</button>
   </div>
   <div
-    @click="checkBusyAuditorium.loadSchedule"
+  @click="checkBusyAuditorium.bookAuditorium"
     :class="{
       'bg-red-700': false,
       'bg-green-700': true,
     }"
   >
-    <p class="border-2 p-5">{{ getUserDate.classrooms }}</p>
+    <p class="border-2 p-5">{{ auditoriumStore.bookAuditorium }}</p>
   </div>
 </template>
