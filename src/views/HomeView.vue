@@ -12,16 +12,6 @@ const getScheduleGroup = useScheduleGroup();
 const getGroupCourses = useGroupOnCourse();
 const getCourseFaculty = useCoursesFaculty();
 const getFormsStuding = useFormFaculty();
-
-const auditoriumMeta = {
-  "71": { name: "Компьютерный класс", capacity: 25 },
-  "72": { name: "Лекционная", capacity: 50 },
-  "105": { name: "Физическая лаборатория", capacity: 20 }
-}
-
-const getAuditoriumMeta = (auditorium) => {
-  return auditoriumMeta[auditorium] || null
-}
 </script>
 
 <template>
@@ -53,33 +43,25 @@ const getAuditoriumMeta = (auditorium) => {
     }"
   >
   <div class="space-y-8">
-    <div v-for="(schedule, auditorium) in auditoriumStore.fullSchedule" 
-         :key="auditorium"
-         class="border rounded-lg p-6 bg-white shadow-sm">
-      <h3 class="text-xl font-bold mb-4 flex items-center">
-        <span class="inline-block w-10">№{{ auditorium }}</span>
-        <span class="text-sm font-normal text-gray-500 ml-2">
-          ({{ getAuditoriumMeta(auditorium)?.name || 'Аудитория' }})
-        </span>
-      </h3>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div v-for="(lesson, time) in schedule" 
-             :key="time"
-             class="border rounded p-3 transition-colors hover:shadow-mdt"
-             :class="{ 'bg-green-50': lesson, 'bg-gray-50': !lesson }">
-          <div class="text-sm font-medium text-gray-500 mb-1">{{ time }}</div>
-          <div v-if="lesson" class="space-y-1">
-            <div class="group font-medium">{{ lesson.group }}</div>
-            <div class="subject text-sm">{{ lesson.subject }}</div>
-            <div v-if="lesson.teacher" class="teacher text-xs text-gray-500">
-              {{ lesson.teacher }}
-            </div>
-          </div>
-          <div v-else class="text-gray-400 italic">Свободно</div>
+  <div v-for="(schedule, auditorium) in auditoriumStore.fullSchedule" 
+       :key="auditorium"
+       class="border rounded-lg p-6 bg-white shadow-sm">
+    <h3 class="text-xl font-bold mb-4">Аудитория {{ auditorium }}</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div v-for="(lesson, time) in schedule" 
+           :key="time"
+           class="border rounded p-3 transition-colors hover:shadow-md"
+           :class="{ 'bg-green-50': lesson, 'bg-gray-50': !lesson }">
+        <div class="text-sm font-medium text-gray-500 mb-1">{{ time }}</div>
+        <div v-if="lesson" class="space-y-1">
+          <div class="group font-medium">{{ lesson.group }}</div>
+          <div class="subject text-sm">{{ lesson.subject }}</div>
         </div>
+        <div v-else class="text-gray-400 italic">Свободно</div>
       </div>
     </div>
   </div>
+</div>
   </div>
 </template>
