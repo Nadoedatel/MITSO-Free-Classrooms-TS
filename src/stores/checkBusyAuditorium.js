@@ -21,6 +21,27 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
   const { arrFormOnFaculty } = storeToRefs(formFacultyStore)
   const { arrCourses } = storeToRefs(formCourseStore)
   const { arrGroup } = storeToRefs(formGroupStore)
+
+  const timeSlots = [
+    '08.00-9.25', '09.35-11.00', '11.10-12.35',
+    '13.05-14.30', '14.40-16.05', '16.35-18.00',
+    '18.10-19.35', '19.45-21.10'
+  ];
+
+  const corpusConfig = {
+    auditoriumsInNewCorpus: ["71", "72 (к)", "73 (к)", "61", "62 (к)", "63 (к)", "64",
+                            "51", "52", "53", "54", "41", "42", "43", "44",
+                            "31", "32", "33", "34", "21", "22", "23", "24"],
+    auditoriumsInOldCorpus: ["503", "502", "410", "407 (к)", "406", "405",
+                            "307", "306", "305", "304", "211", "216", "222", "111"],
+    auditoriumsInDormitory: ["909 чжф", "809 чжф", "709 чжф", "509 чжф",
+                            "409 чжф", "309 чжф", "209 чжф", "207 чжф", "206 чжф"]
+  };
+
+  const cache = ref({
+    allLessons: [],
+    initialized: false
+  });
   // Вспомогательные функции
   const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
   
@@ -112,6 +133,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
  const loadAllSchedules = async () => {
   try {
     isLoading.value = true;
+    cache.value.allLessons = [];
     
     if (!formFacultyStore.completeStructure) {
       throw new Error("Сначала загрузите данные (loadAllData)");
@@ -139,9 +161,11 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
     }
     
     // Фильтрация и сохранение
-    formScheduleStore.arrSchedule.value = allSchedules
+    const filteredLessons = allSchedules
       .filter(lesson => lesson?.date === currentDate.value);
-      
+    alert("ЗАГРУЗИЛОСЬ!")
+    formScheduleStore.arrSchedule.value = filteredLessons; // Сохраняем в хранилище
+    cache.value.allLessons.push(...filteredLessons);  // Добавляем в кеш
   } catch (error) {
     console.error("Ошибка загрузки расписаний:", error);
     throw error;
@@ -152,67 +176,32 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
 
   // Инициализация полного расписания
   const initFullSchedule = async (nameCorpus) => {
-    const timeSlots = [
-      '08.00-9.25', '09.35-11.00', '11.10-12.35',
-      '13.05-14.30', '14.40-16.05', '16.35-18.00',
-      '18.10-19.35', '19.45-21.10'
-    ];
-  
     try {
-      // 1. Загружаем все данные
-      await loadAllData();
-      
-      // 2. Загружаем все расписания
-      await loadAllSchedules();
+      // Инициализируем аудитории
+      await formAuditoriumStore.initSchedule(corpusConfig[nameCorpus], timeSlots);
   
-      // 3. Инициализируем аудитории
-      let auditoriums = [];
-      switch(nameCorpus) {
-        case 'auditoriumsInNewCorpus':
-          auditoriums = ["71", "72", "73", "74", "61", "62", "63", "64",
-                        "51", "52", "53", "54", "41", "42", "43", "44",
-                        "31", "32", "33", "34", "21", "22", "23", "24"];
-          break;
-        case 'auditoriumsInOldCorpus':
-          auditoriums = ["503", "502", "410", "407", "406", "405",
-                        "307", "306", "305", "304", "211", "216", "222", "111"];
-          break;
-        case 'auditoriumsInDormitory':
-          auditoriums = ["909 чжф", "809 чжф", "709 чжф", "509 чжф",
-                        "409 чжф", "309 чжф", "209 чжф", "207 чжф", "206 чжф"];
-          break;
-        default:
-          throw new Error("Неизвестный тип корпуса");
+      
+      // Бронируем аудитории с учетом структуры данных
+       if (cache.value.allLessons.length > 0) {
+        await bookAuditorium();
       }
-  
-      // Инициализация расписания аудиторий
-      await formAuditoriumStore.initSchedule(auditoriums, timeSlots);
-      
-      // 4. Бронируем аудитории с учетом структуры данных
-      await bookAuditorium();
     } catch (error) {
-      console.error("Ошибка в initFullSchedule:", error);
+      console.error("Ошибка инициализации корпуса:", error);
       throw error;
     }
   };
   
-  // Обновленная функция бронирования аудиторий
   const bookAuditorium = async () => {
     try {
-      // Получаем все расписания
-      const allSchedules = formScheduleStore.arrSchedule.value || [];
-      
-      // Создаем карту аудиторий для быстрого доступа
+      // Создаем карту аудиторий для группировки занятий
       const auditoriumMap = new Map();
       
-      // 1. Сначала собираем все занятия по аудиториям
-      for (const item of allSchedules) {
-        if (item.date !== currentDate.value) continue;
-        
-        const { auditorium, time, group_class: group, date, subject } = item;
+      // 1. Группируем занятия по аудиториям и времени
+      for (const lesson of cache.value.allLessons) {
+        const { auditorium, time, group_class: group, date, subject } = lesson;
         
         if (!auditorium || !time || !group || !date) {
-          console.warn("Пропуск элемента с неполными данными:", item);
+          console.warn("Пропуск элемента с неполными данными:", lesson);
           continue;
         }
   
@@ -233,26 +222,36 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
       }
       
       // 2. Записываем занятия в хранилище аудиторий
-      for (const [_, {auditorium, time, lessons}] of auditoriumMap) {
-        // Если в один слот несколько занятий - можно добавить логику обработки
-        const mainLesson = lessons[0]; // Берем первое занятие (можно добавить приоритеты)
+      for (const [_, { auditorium, time, lessons }] of auditoriumMap) {
+        const mainLesson = lessons[0]; // Основное занятие
+        const additionalGroups = lessons.length > 1 
+          ? lessons.slice(1).map(l => l.group) 
+          : undefined;
         
         await formAuditoriumStore.addLesson(
-          auditorium, 
-          time, 
+          auditorium,
+          time,
           {
             group: mainLesson.group,
             date: mainLesson.date,
             subject: mainLesson.subject,
-            // Можно добавить дополнительные данные
-            additionalGroups: lessons.length > 1 ? lessons.slice(1).map(l => l.group) : undefined
+            // Добавляем информацию о пересечениях
+            additionalGroups: additionalGroups
           }
         );
+        
+        // Логируем для отладки
+        if (additionalGroups) {
+          console.log(`Аудитория ${auditorium}, время ${time}:`, 
+            `Основная группа ${mainLesson.group}`,
+            `Совместно с ${additionalGroups.join(', ')}`);
+        }
       }
       
-      console.log("Бронирование аудиторий завершено. Всего:", auditoriumMap.size);
+      console.log("Бронирование завершено. Обработано аудиторий:", auditoriumMap.size);
+      
     } catch (error) {
-      console.error("Ошибка при бронировании аудиторий:", error);
+      console.error("Ошибка бронирования аудиторий:", error);
       throw new Error("Не удалось распределить занятия по аудиториям");
     }
   };

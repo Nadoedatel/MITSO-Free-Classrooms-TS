@@ -22,11 +22,9 @@ const loadData = async () => {
     isLoading.value = true;
     error.value = null;
     
-    // Последовательная загрузка данных
-    await getFormsStuding.getFormOnFaculty();
-    await getCourseFaculty.getCourseFaculty();
-    await getGroupCourses.getGroupOnCourse();
-    await getScheduleGroup.getScheduleGroup();
+    await checkBusyAuditorium.loadAllData();
+    await checkBusyAuditorium.loadAllSchedules();
+    await checkBusyAuditorium.initFullSchedule('auditoriumsInNewCorpus');
   } catch (err) {
     error.value = err.message;
     console.error('Ошибка загрузки данных:', err);
@@ -38,7 +36,6 @@ const loadData = async () => {
 const loadAuditoriums = async (corpusType) => {
   try {
     isLoading.value = true;
-    error.value = null;
     await checkBusyAuditorium.initFullSchedule(corpusType);
   } catch (err) {
     error.value = `Ошибка загрузки аудиторий: ${err.message}`;
@@ -47,9 +44,7 @@ const loadAuditoriums = async (corpusType) => {
   }
 };
 
-onMounted(() => {
-  loadData();
-});
+
 </script>
 
 <template>
@@ -70,7 +65,7 @@ onMounted(() => {
           { label: 'Курсы', method: getCourseFaculty.getCourseFaculty },
           { label: 'Группы', method: getGroupCourses.getGroupOnCourse },
           { label: 'Расписание группы', method: getScheduleGroup.getScheduleGroup },
-          { label: 'Инициализация аудиторий', method: () => checkBusyAuditorium.initFullSchedule() }
+          { label: 'Инициализация аудиторий', method: loadData  }
         ]"
         :key="index"
         @click="action.method"
@@ -104,7 +99,7 @@ onMounted(() => {
     </div>
 
     <!-- Список аудиторий -->
-    <div v-if="Object.keys(auditoriumStore.fullSchedule).length > 0" class="space-y-6">
+    <div v-if="Object.keys(auditoriumStore.fullSchedule).length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 p-4">
       <div 
         v-for="(schedule, auditorium) in auditoriumStore.fullSchedule"
         :key="auditorium"
@@ -112,13 +107,13 @@ onMounted(() => {
       >
         <h3 class="text-xl font-bold mb-4">Аудитория {{ auditorium }}</h3>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
           <div
             v-for="(lesson, time) in schedule"
             :key="time"
             class="border rounded p-3 transition-all hover:shadow-md"
             :class="{
-              'bg-green-50 border-green-200': lesson,
+              'bg-red-200 border-red-200': lesson,
               'bg-gray-50 border-gray-200': !lesson
             }"
           >
