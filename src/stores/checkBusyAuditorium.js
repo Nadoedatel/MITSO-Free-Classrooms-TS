@@ -11,8 +11,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
   const isLoading = ref(false);
   const { arrSchedule } = storeToRefs(formScheduleStore)
   // Инициализация должна быть асинхронной
-  const initFullSchedule = async () => {
-    const auditoriums = ["71", "72", "73", "41","42"];
+  const initFullSchedule = async (nameCorpus) => {
     const timeSlots = [
       '08.00-9.25',
       '09.35-11.00', 
@@ -23,14 +22,36 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
       '18.10-19.35',
       '19.45-21.10'
     ];
+    console.log(nameCorpus);
     
-    await formAuditoriumStore.initSchedule(auditoriums, timeSlots);
+    if (nameCorpus === 'auditoriumsInNewCorpus') {
+      const auditoriumsInNewCorpus = [
+        "71", "72", "73", "74",
+        "61", "62", "63", "64",
+        "51", "52", "53", "54", 
+        "41","42", "43", "44",
+        "31", "32", "33", "34",
+        "21", "22", "23", "24"
+      ]; 
+      await formAuditoriumStore.initSchedule(auditoriumsInNewCorpus, timeSlots);
+    } else if (nameCorpus === 'auditoriumsInOldCorpus') {
+      const auditoriumsInOldCorpus = [
+        "303", "302", "301"
+      ];
+      await formAuditoriumStore.initSchedule(auditoriumsInOldCorpus, timeSlots);
+    } else if (nameCorpus === 'auditoriumsInDormitory') {
+      const auditoriumsInDormitory = [
+        "409 чжф",  "709 чжф"
+      ];
+      await formAuditoriumStore.initSchedule(auditoriumsInDormitory, timeSlots);
+    }   
+    bookAuditorium()
   }
   
   const bookAuditorium = async () => {
     try {
       if (!arrSchedule.value.length) {
-        await scheduleStore.getScheduleGroup();
+        await formScheduleStore.getScheduleGroup();
       }
   
       for (const item of arrSchedule.value) {
