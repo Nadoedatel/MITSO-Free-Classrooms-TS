@@ -9,9 +9,9 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
   const formFacultyStore = useFormFaculty();
   const formGroupStore = useGroupOnCourse();
 
-  const nowFormOnFaculty = ref(null);
-  const nowNameGroup = ref(null);
-  const nowCourseOnFormAndFaculty = ref(null);
+  const nowFormOnFaculty = ref("");
+  const nowNameGroup = ref("");
+  const nowCourseOnFormAndFaculty = ref("");
   const arrSchedule = ref([]);
 
   // Получаем ссылки на массивы из других хранилищ
@@ -84,20 +84,27 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
       if (availableForms.value.length === 0) {
         await formFacultyStore.getFormOnFaculty();
       }
-      setCurrentForm();
+
+      if (!nowFormOnFaculty.value) {
+        setCurrentForm();
+      }
 
       // Загружаем курсы при необходимости
       if (availableCourses.value.length === 0) {
         await formCourseStore.getCourseFaculty();
       }
-      setCurrentCourse();
+      if (!nowCourseOnFormAndFaculty.value) {
+        setCurrentCourse();
+      }
+
 
       // Загружаем группы при необходимости
       if (availableGroups.value.length === 0) {
         await formGroupStore.getGroupOnCourse();
       }
-      setCurrentGroup();
-
+      if (!nowNameGroup.value) {
+        setCurrentGroup();
+      }
       // Проверяем что все необходимые данные установлены
       if (
         !nowFormOnFaculty.value?.name ||

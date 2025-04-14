@@ -7,8 +7,8 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
   const formCourseStore = useCoursesFaculty();
   const formFacultyStore = useFormFaculty();
   const arrGroup = ref([]);
-  const nowCourseOnFormAndFaculty = ref(null);
-  const nowFormOnFaculty = ref(null);
+  const nowCourseOnFormAndFaculty = ref("");
+  const nowFormOnFaculty = ref("");
 
   // Получаем ссылки на массивы из других хранилищ
   const availableCourses = computed(() => formCourseStore.arrCourses || []);
@@ -19,7 +19,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
   function setGroup(course) {
     if (course) {
       nowCourseOnFormAndFaculty.value = course;
-    } else if (availableCourses.value?.length > 0) {
+    } else if (availableCourses.value.length > 0) {
       nowCourseOnFormAndFaculty.value = availableCourses.value[0];
     }
   }
@@ -27,7 +27,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
   function setCurrentForm(form) {
     if (form) {
       nowFormOnFaculty.value = form;
-    } else if (availableForms.value?.length > 0) {
+    } else if (availableForms.value.length > 0) {
       nowFormOnFaculty.value = availableForms.value[0];
     }
   }
@@ -38,23 +38,26 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
       return;
     }
     arrGroup.value = data;
-    console.log("Группы загружены:", arrGroup.value.length);
+    console.log("Группы загружены:", arrGroup.value);
   }
 
   async function getGroupOnCourse() {
     try {
-      if (!availableForms.value?.length) {
+      if (!availableForms.value?.length === 0) {
         await formFacultyStore.getFormOnFaculty();
       }
 
-      setCurrentForm();
+      if (!nowFormOnFaculty.value) {
+        setCurrentForm();
+      }
 
       if (!availableCourses.value?.length) {
         await formCourseStore.getCourseFaculty();
       }
 
-      setGroup(availableCourses.value?.[0]);
-
+      if (!nowCourseOnFormAndFaculty.value) {
+        setGroup();
+      }
       if (
         !nowFormOnFaculty.value?.name ||
         !nowCourseOnFormAndFaculty.value?.name
@@ -83,6 +86,8 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
   }
 
   return {
+    setGroup,
+    setCurrentForm,
     getGroupOnCourse,
     arrGroup,
     nowFormOnFaculty,

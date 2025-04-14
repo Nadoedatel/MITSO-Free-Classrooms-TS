@@ -1,4 +1,5 @@
 <script setup>
+import { ref, onMounted } from 'vue';
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useGroupOnCourse } from "@/stores/getGroupCourses";
@@ -12,100 +13,130 @@ const getScheduleGroup = useScheduleGroup();
 const getGroupCourses = useGroupOnCourse();
 const getCourseFaculty = useCoursesFaculty();
 const getFormsStuding = useFormFaculty();
+
+const isLoading = ref(false);
+const error = ref(null);
+
+const loadData = async () => {
+  try {
+    isLoading.value = true;
+    error.value = null;
+    
+    // Последовательная загрузка данных
+    await getFormsStuding.getFormOnFaculty();
+    await getCourseFaculty.getCourseFaculty();
+    await getGroupCourses.getGroupOnCourse();
+    await getScheduleGroup.getScheduleGroup();
+  } catch (err) {
+    error.value = err.message;
+    console.error('Ошибка загрузки данных:', err);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const loadAuditoriums = async (corpusType) => {
+  try {
+    isLoading.value = true;
+    error.value = null;
+    await checkBusyAuditorium.initFullSchedule(corpusType);
+  } catch (err) {
+    error.value = `Ошибка загрузки аудиторий: ${err.message}`;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  loadData();
+});
 </script>
 
 <template>
-  <div>
-    <button
-      class="border-2 p-5 hover:bg-amber-400"
-      @click="getFormsStuding.getFormOnFaculty"
-    >
-      Получение форму обучения
-    </button>
-    <button
-      class="border-2 p-5 hover:bg-amber-400"
-      @click="getCourseFaculty.getCourseFaculty"
-    >
-      Получения курсов
-    </button>
-    <button
-      class="border-2 p-5 hover:bg-amber-400"
-      @click="getGroupCourses.getGroupOnCourse"
-    >
-      Получения групп
-    </button>
-    <button
-      class="border-2 p-5 hover:bg-amber-400"
-      @click="getScheduleGroup.getScheduleGroup"
-    >
-      Получения расписание группы
-    </button>
-    <button
-      class="border-2 p-5 hover:bg-amber-400"
-      @click="checkBusyAuditorium.loadSchedule"
-    >
-      Получить расписание сразу
-    </button>
-    <button
-      class="border-2 p-5 hover:bg-amber-400"
-      @click="checkBusyAuditorium.initFullSchedule"
-    >
-      Инициализация объекта аудитории
-    </button>
-  </div>
+  <div class="space-y-6">
+    <!-- Состояние загрузки и ошибки -->
+    <div v-if="isLoading" class="p-4 bg-blue-50 text-blue-600 rounded-lg">
+      Загрузка данных...
+    </div>
+    <div v-if="error" class="p-4 bg-red-50 text-red-600 rounded-lg">
+      {{ error }}
+    </div>
 
-  <div class="flex justify-around border-2 p-5">
-    <div>
-      <p class="border-2 p-5">Новый корпус</p>
+    <!-- Панель управления -->
+    <div class="flex flex-wrap gap-3 p-4 bg-gray-50 rounded-lg">
       <button
-        @click="checkBusyAuditorium.initFullSchedule('auditoriumsInNewCorpus')"
-        class="border-2 p-5 hover:bg-amber-400"
+        v-for="(action, index) in [
+          { label: 'Формы обучения', method: getFormsStuding.getFormOnFaculty },
+          { label: 'Курсы', method: getCourseFaculty.getCourseFaculty },
+          { label: 'Группы', method: getGroupCourses.getGroupOnCourse },
+          { label: 'Расписание группы', method: getScheduleGroup.getScheduleGroup },
+          { label: 'Инициализация аудиторий', method: () => checkBusyAuditorium.initFullSchedule() }
+        ]"
+        :key="index"
+        @click="action.method"
+        class="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-amber-400 transition-colors"
+        :disabled="isLoading"
       >
-        Получить аудитории
+        {{ action.label }}
       </button>
     </div>
-    <div>
-      <p class="border-2 p-5">Старый корпус</p>
-      <button
-        @click="checkBusyAuditorium.initFullSchedule('auditoriumsInOldCorpus')"
-        class="border-2 p-5 hover:bg-amber-400"
-      >
-        Получить аудитории
-      </button>
-    </div>
-    <div>
-      <p class="border-2 p-5">Общага</p>
-      <button
-        @click="checkBusyAuditorium.initFullSchedule('auditoriumsInDormitory')"
-        class="border-2 p-5 hover:bg-amber-400"
-      >
-        Получить аудитории
-      </button>
-    </div>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 p-5">
-    <div
-      v-for="(schedule, auditorium) in auditoriumStore.fullSchedule"
-      :key="auditorium"
-      class="border rounded-lg p-6 bg-white shadow-sm"
-    >
-      <h3 class="text-xl font-bold mb-4">Аудитория {{ auditorium }}</h3>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3">
-        <div
-          v-for="(lesson, time) in schedule"
-          :key="time"
-          class="border rounded p-3 transition-colors hover:shadow-md"
-          :class="{ 'bg-green-50': lesson, 'bg-gray-50': !lesson }"
+    <!-- Выбор корпуса -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+      <div 
+        v-for="building in [
+          { type: 'auditoriumsInNewCorpus', label: 'Новый корпус' },
+          { type: 'auditoriumsInOldCorpus', label: 'Старый корпус' },
+          { type: 'auditoriumsInDormitory', label: 'Общага' }
+        ]"
+        :key="building.type"
+        class="border rounded-lg p-4 bg-white text-center"
+      >
+        <h3 class="font-medium mb-2">{{ building.label }}</h3>
+        <button
+          @click="loadAuditoriums(building.type)"
+          class="px-4 py-2 bg-amber-100 hover:bg-amber-400 rounded-md transition-colors"
+          :disabled="isLoading"
         >
-          <div class="text-sm font-medium text-gray-500 mb-1">{{ time }}</div>
-          <div v-if="lesson" class="space-y-1">
-            <div class="group font-medium">{{ lesson.group }}</div>
-            <div class="subject text-sm">{{ lesson.subject }}</div>
+          Получить аудитории
+        </button>
+      </div>
+    </div>
+
+    <!-- Список аудиторий -->
+    <div v-if="Object.keys(auditoriumStore.fullSchedule).length > 0" class="space-y-6">
+      <div 
+        v-for="(schedule, auditorium) in auditoriumStore.fullSchedule"
+        :key="auditorium"
+        class="border rounded-lg p-6 bg-white shadow-sm"
+      >
+        <h3 class="text-xl font-bold mb-4">Аудитория {{ auditorium }}</h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div
+            v-for="(lesson, time) in schedule"
+            :key="time"
+            class="border rounded p-3 transition-all hover:shadow-md"
+            :class="{
+              'bg-green-50 border-green-200': lesson,
+              'bg-gray-50 border-gray-200': !lesson
+            }"
+          >
+            <div class="text-sm font-medium text-gray-500 mb-1">{{ time }}</div>
+            <template v-if="lesson">
+              <div class="font-medium text-gray-800">{{ lesson.group }}</div>
+              <div v-if="lesson.subject" class="text-sm text-gray-600 mt-1">
+                {{ lesson.subject }}
+              </div>
+            </template>
+            <div v-else class="text-gray-400 italic text-sm">Свободно</div>
           </div>
-          <div v-else class="text-gray-400 italic">Свободно</div>
         </div>
       </div>
+    </div>
+
+    <div v-else class="p-6 text-center text-gray-500">
+      Нет данных об аудиториях. Загрузите данные для одного из корпусов.
     </div>
   </div>
 </template>
