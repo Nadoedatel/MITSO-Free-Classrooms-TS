@@ -4,9 +4,7 @@ import { ref } from "vue";
 
 export const useUserDate = defineStore("userDate", () => {
   const currentDate = ref("");
-  const isBusy = ref(false);
-  const classrooms = ref("71");
-
+  
 // Функция получения даты пользователя в данный момент
 function getUserCurrentDate() {
     const today = new Date();
@@ -23,8 +21,6 @@ function getUserCurrentDate() {
 
   return {
     getUserCurrentDate,
-    currentDate,
-    classrooms,
-    isBusy,
+    currentDate
   };
 });

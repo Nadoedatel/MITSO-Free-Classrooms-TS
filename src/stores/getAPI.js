@@ -1,12 +1,6 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
 
 export const useScheduleDataStore = defineStore("scheduleData", () => {
-  const currentDate = ref("");
-  const isBusy = ref(false);
-  const classrooms = ref("71");
-
-
   async function getApiScheduleMitso() {
     try {
       const response = await fetch(

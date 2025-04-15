@@ -97,7 +97,6 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
         setCurrentCourse();
       }
 
-
       // Загружаем группы при необходимости
       if (availableGroups.value.length === 0) {
         await formGroupStore.getGroupOnCourse();
