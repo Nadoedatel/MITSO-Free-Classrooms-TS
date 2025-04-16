@@ -19,9 +19,9 @@ export const useCoursesFaculty = defineStore("coursesFaculty", () => {
       nowFormOnFaculty.value = availableForms.value[0];
     }
   }
-
+  
   // Получения курсов данного факультета и данной формы обучения ( Экономический, дневная )
-  async function getCourseFaculty() {
+  async function getCourseFaculty(faculty = null) {
     try {
       if (availableForms.value.length === 0) {
         await formFacultyStore.getFormOnFaculty();
@@ -38,7 +38,7 @@ export const useCoursesFaculty = defineStore("coursesFaculty", () => {
       console.log(`Текущая форма обучения: ${nowFormOnFaculty.value.name}`);
 
       const response = await fetch(
-        `/api/schedule/courses?faculty=Экономический&form=${nowFormOnFaculty.value.name}`
+        `/api/schedule/courses?faculty=${faculty}&form=${nowFormOnFaculty.value.name}`
       );
 
       if (!response.ok) {

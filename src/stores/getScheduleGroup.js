@@ -78,8 +78,9 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
     console.log("Загружено занятий:", arrSchedule.value);
   }
 
-  async function getScheduleGroup() {
+  async function getScheduleGroup(faculty = null) {
     try {
+
       // Загружаем формы обучения при необходимости
       if (availableForms.value.length === 0) {
         await formFacultyStore.getFormOnFaculty();
@@ -114,12 +115,13 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
       }
 
       console.log(`Загрузка расписания для: 
+          Факультет: ${faculty},
           Форма: ${nowFormOnFaculty.value.name}, 
           Курс: ${nowCourseOnFormAndFaculty.value.name},
           Группа: ${nowNameGroup.value.name}`);
 
       const response = await fetch(
-        `/api/schedule/group-schedules?faculty=Экономический&form=${nowFormOnFaculty.value.name}&course=${nowCourseOnFormAndFaculty.value.name}&group=${nowNameGroup.value.name}`
+        `/api/schedule/group-schedules?faculty=${faculty}&form=${nowFormOnFaculty.value.name}&course=${nowCourseOnFormAndFaculty.value.name}&group=${nowNameGroup.value.name}`
       );
 
       if (!response.ok) {

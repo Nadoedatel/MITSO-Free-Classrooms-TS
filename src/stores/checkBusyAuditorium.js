@@ -23,7 +23,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
     nowCourseOnFormAndFaculty,
   } = storeToRefs(formScheduleStore);
   const { currentDate } = storeToRefs(formUserDate);
-  const { arrFormOnFaculty } = storeToRefs(formFacultyStore);
+  const { arrFormOnFaculty, arrFaculty } = storeToRefs(formFacultyStore);
   const { arrCourses } = storeToRefs(formCourseStore);
   const { arrGroup } = storeToRefs(formGroupStore);
 
@@ -68,6 +68,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
       "503",
       "502",
       "410",
+      "409 (к)",
       "407 (к)",
       "406",
       "405",
@@ -104,39 +105,54 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
   formUserDate.getUserCurrentDate();
 
   const loadAllData = async () => {
-    try {
-      isLoading.value = true;
+  try {
+    isLoading.value = true;
+    
+    // Получаем список всех факультетов из хранилища
+    const allFaculties = formFacultyStore.arrFaculty || [];
+    if (allFaculties.length === 0) {
+      throw new Error("Нет доступных факультетов");
+    }
 
-      // 1. Загружаем все формы обучения
+    // Очищаем предыдущие данные
+    const completeData = [];
+    const allForms = [];
+
+    for (const faculty of allFaculties) {
+      console.log(`Загрузка данных для факультета: ${faculty}`);
+      
+      // 1. Устанавливаем текущий факультет и загружаем формы обучения
+      formFacultyStore.setCurrentFaculty(faculty);
       if (arrFormOnFaculty.value.length === 0) {
         await formFacultyStore.getFormOnFaculty();
       }
 
-      const allForms = arrFormOnFaculty.value;
-      if (allForms.length === 0) throw new Error("Нет доступных форм обучения");
+      // Получаем формы обучения для текущего факультета
+      const facultyForms = arrFormOnFaculty.value;
+      if (facultyForms.length === 0) {
+        console.warn(`Нет форм обучения для факультета ${faculty}`);
+        continue;
+      }
 
-      // 2. Для каждой формы загружаем курсы и сохраняем связь
+      // Добавляем формы в общий массив
+      allForms.push(...facultyForms);
+
+      // 2. Для каждой формы загружаем курсы
       const formsWithCourses = [];
-
-      for (const form of allForms) {
+      for (const form of facultyForms) {
         if (!form?.name) continue;
 
-        // Устанавливаем текущую форму
         formCourseStore.setCurrentForm(form);
-        await formCourseStore.getCourseFaculty();
+        await formCourseStore.getCourseFaculty(faculty);
 
-        // Сохраняем форму с её курсами
         formsWithCourses.push({
           form,
-          courses: [...arrCourses.value], // Копируем массив курсов
+          courses: [...arrCourses.value],
         });
-
         await delay(300);
       }
 
       // 3. Для каждого курса каждой формы загружаем группы
-      const completeData = [];
-
       for (const { form, courses } of formsWithCourses) {
         const formWithCoursesAndGroups = {
           form,
@@ -146,97 +162,95 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
         for (const course of courses) {
           if (!course?.name) continue;
 
-          // Устанавливаем текущие форму и курс
           formGroupStore.setCurrentForm(form);
           formGroupStore.setGroup(course);
-          await formGroupStore.getGroupOnCourse();
+          await formGroupStore.getGroupOnCourse(faculty);
 
-          // Сохраняем курс с его группами
           formWithCoursesAndGroups.courses.push({
             course,
-            groups: [...arrGroup.value], // Копируем массив групп
+            groups: [...arrGroup.value],
           });
-
           await delay(300);
         }
 
-        completeData.push(formWithCoursesAndGroups);
+        completeData.push({
+          faculty,
+          form,
+          courses: formWithCoursesAndGroups.courses,
+        });
       }
-
-      // 4. Сохраняем структурированные данные
-      formFacultyStore.arrFormOnFaculty.value = allForms;
-      formCourseStore.arrCourses.value = completeData.flatMap((f) =>
-        f.courses.map((c) => c.course)
-      );
-      formGroupStore.arrGroup.value = completeData.flatMap((f) =>
-        f.courses.flatMap((c) => c.groups)
-      );
-
-      // Для удобства можно сохранить и полную структуру
-      formFacultyStore.completeStructure = completeData;
-    } catch (error) {
-      console.error("Ошибка загрузки данных:", error);
-      throw error;
-    } finally {
-      isLoading.value = false;
     }
-  };
 
-  const loadAllSchedules = async () => {
-    try {
-      isLoading.value = true;
-      cache.value.allLessons = [];
+    // 4. Сохраняем структурированные данные (как в оригинале)
+    formFacultyStore.arrFormOnFaculty.value = allForms;
+    formCourseStore.arrCourses.value = completeData.flatMap((f) =>
+      f.courses.map((c) => c.course)
+    );
+    formGroupStore.arrGroup.value = completeData.flatMap((f) =>
+      f.courses.flatMap((c) => c.groups)
+    );
 
-      if (!formFacultyStore.completeStructure) {
-        throw new Error("Сначала загрузите данные (loadAllData)");
-      }
+    // Для удобства можно сохранить и полную структуру
+    formFacultyStore.completeStructure = completeData;
 
-      const allSchedules = [];
+  } catch (error) {
+    console.error("Ошибка загрузки данных:", error);
+    throw error;
+  } finally {
+    isLoading.value = false;
+  }
+};
+  
+const loadAllSchedules = async () => {
+  try {
+    isLoading.value = true;
+    cache.value.allLessons = [];
 
-      for (const { form, courses } of formFacultyStore.completeStructure) {
-        for (const { course, groups } of courses) {
-          for (const group of groups) {
-            // Устанавливаем текущий контекст
-            nowFormOnFaculty.value = form;
-            nowCourseOnFormAndFaculty.value = course;
-            nowNameGroup.value = group;
+    if (!formFacultyStore.completeStructure) {
+      throw new Error("Сначала загрузите данные (loadAllData)");
+    }
 
-            // Загружаем расписание
-            await formScheduleStore.getScheduleGroup();
+    const allSchedules = [];
 
-            // Добавляем в общий массив
-            allSchedules.push(...(arrSchedule.value || []));
-
-            await delay(300);
-          }
+    // Проходим по всем элементам completeStructure
+    for (const { faculty, form, courses } of formFacultyStore.completeStructure) {
+      for (const { course, groups } of courses) {
+        for (const group of groups) {
+          nowFormOnFaculty.value = form;
+          nowCourseOnFormAndFaculty.value = course;
+          nowNameGroup.value = group;
+    
+          // Теперь faculty берётся из структуры, а не из form.faculty
+          await formScheduleStore.getScheduleGroup(faculty); 
+          allSchedules.push(...(arrSchedule.value || []));
+          await delay(300);
         }
       }
-
-      // Фильтрация и сохранение
-      const filteredLessons = allSchedules.filter(
-        (lesson) => lesson?.date === currentDate.value
-      );
-      alert("ЗАГРУЗИЛОСЬ!");
-      formScheduleStore.arrSchedule.value = filteredLessons; // Сохраняем в хранилище
-      cache.value.allLessons.push(...filteredLessons); // Добавляем в кеш
-    } catch (error) {
-      console.error("Ошибка загрузки расписаний:", error);
-      throw error;
-    } finally {
-      isLoading.value = false;
     }
-  };
+
+    // Фильтрация по текущей дате
+    const filteredLessons = allSchedules.filter(
+      (lesson) => lesson?.date === currentDate.value
+    );
+    
+    formScheduleStore.arrSchedule.value = filteredLessons;
+    cache.value.allLessons.push(...filteredLessons);
+
+  } catch (error) {
+    console.error("Ошибка загрузки расписаний:", error);
+    throw error;
+  } finally {
+    isLoading.value = false;
+  }
+};
 
   // Инициализация полного расписания
   const initFullSchedule = async (nameCorpus) => {
     try {
       // Инициализируем аудитории
-      await formAuditoriumStore.initSchedule(
-        corpusConfig[nameCorpus],
-        timeSlots
-      );
-
-      // Бронируем аудитории с учетом структуры данных
+      await formAuditoriumStore.initSchedule(corpusConfig[nameCorpus], timeSlots);
+  
+      // Бронируем аудитории для всех загруженных расписаний
       if (cache.value.allLessons.length > 0) {
         await bookAuditorium();
       }

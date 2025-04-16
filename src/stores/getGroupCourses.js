@@ -32,6 +32,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
     }
   }
 
+
   function deliveryGroupToArr(data) {
     if (!data || !Array.isArray(data)) {
       console.error("Получены некорректные данные групп:", data);
@@ -41,8 +42,10 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
     console.log("Группы загружены:", arrGroup.value);
   }
 
-  async function getGroupOnCourse() {
+  async function getGroupOnCourse(faculty = null) {
     try {
+
+
       if (!availableForms.value?.length === 0) {
         await formFacultyStore.getFormOnFaculty();
       }
@@ -70,7 +73,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
       );
 
       const response = await fetch(
-        `/api/schedule/groups?faculty=Экономический&form=${nowFormOnFaculty.value.name}&course=${nowCourseOnFormAndFaculty.value.name}`
+        `/api/schedule/groups?faculty=${faculty}&form=${nowFormOnFaculty.value.name}&course=${nowCourseOnFormAndFaculty.value.name}`
       );
 
       if (!response.ok) {
