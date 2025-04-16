@@ -1,18 +1,19 @@
 <script setup>
 import { ref } from 'vue';
-import { useFormFaculty } from "@/stores/getFormFaculty";
-import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
-import { useGroupOnCourse } from "@/stores/getGroupCourses";
-import { useScheduleGroup } from "@/stores/getScheduleGroup";
+// import { useFormFaculty } from "@/stores/getFormFaculty";
+// import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
+// import { useGroupOnCourse } from "@/stores/getGroupCourses";
+// import { useScheduleGroup } from "@/stores/getScheduleGroup";
 import { useCheckBusyAuditorium } from "@/stores/checkBusyAuditorium";
 import { useAuditorium } from "@/stores/objectAuditorium";
+import preLoader from '@/components/preLoader.vue'
 
 const auditoriumStore = useAuditorium();
 const checkBusyAuditorium = useCheckBusyAuditorium();
-const getScheduleGroup = useScheduleGroup();
-const getGroupCourses = useGroupOnCourse();
-const getCourseFaculty = useCoursesFaculty();
-const getFormsStuding = useFormFaculty();
+// const getScheduleGroup = useScheduleGroup();
+// const getGroupCourses = useGroupOnCourse();
+// const getCourseFaculty = useCoursesFaculty();
+// const getFormsStuding = useFormFaculty();
 
 const isLoading = ref(false);
 const error = ref(null);
@@ -50,9 +51,10 @@ const loadAuditoriums = async (corpusType) => {
 <template>
   <div class="space-y-6">
     <!-- Состояние загрузки и ошибки -->
-    <div v-if="isLoading" class="p-4 bg-blue-50 text-blue-600 rounded-lg">
+    <!-- <div v-if="isLoading" class="p-4 bg-blue-50 text-blue-600 rounded-lg">
       Загрузка данных...
-    </div>
+    </div> -->
+    <preLoader :isLoading="isLoading" />
     <div v-if="error" class="p-4 bg-red-50 text-red-600 rounded-lg">
       {{ error }}
     </div>
@@ -60,10 +62,10 @@ const loadAuditoriums = async (corpusType) => {
     <!-- Панель управления -->
     <div class="flex flex-wrap gap-3 p-4 bg-gray-50 rounded-lg">
       <button v-for="(action, index) in [
-        { label: 'Формы обучения', method: getFormsStuding.getFormOnFaculty },
-        { label: 'Курсы', method: getCourseFaculty.getCourseFaculty },
-        { label: 'Группы', method: getGroupCourses.getGroupOnCourse },
-        { label: 'Расписание группы', method: getScheduleGroup.getScheduleGroup },
+        // { label: 'Формы обучения', method: getFormsStuding.getFormOnFaculty },
+        // { label: 'Курсы', method: getCourseFaculty.getCourseFaculty },
+        // { label: 'Группы', method: getGroupCourses.getGroupOnCourse },
+        // { label: 'Расписание группы', method: getScheduleGroup.getScheduleGroup },
         { label: 'Инициализация аудиторий', method: loadData }
       ]" :key="index" @click="action.method"
         class="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-amber-400 transition-colors"
