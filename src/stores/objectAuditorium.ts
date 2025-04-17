@@ -1,14 +1,26 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, type Ref } from "vue";
+
+interface LessonData {
+  [key:string]:any
+}
+
+interface TimeSlotSchedule {
+  [timeSlot:string]: LessonData | null
+}
+
+interface AuditoriumSchedule {
+  [auditorium: string]: TimeSlotSchedule
+}
 
 export const useAuditorium = defineStore("auditorium", () => {
-  const fullSchedule = ref({})
+  const fullSchedule: Ref<AuditoriumSchedule> = ref({})
 
   // Инициализация пустого расписания
-  function initSchedule(auditoriums, timeSlots) {
+  function initSchedule(auditoriums: string[], timeSlots: string[]): void {
     console.log("Инициализация с параметрами:", { auditoriums, timeSlots })
-    fullSchedule.value = auditoriums.reduce((acc, aud) => {
-      acc[aud] = timeSlots.reduce((timeAcc, time) => {
+    fullSchedule.value = auditoriums.reduce((acc: AuditoriumSchedule, aud: string) => {
+      acc[aud] = timeSlots.reduce((timeAcc: TimeSlotSchedule, time: string) => {
         timeAcc[time] = null
         return timeAcc
       }, {})
@@ -17,13 +29,10 @@ export const useAuditorium = defineStore("auditorium", () => {
     console.log("Результат инициализации:", JSON.parse(JSON.stringify(fullSchedule.value)))
   }
   
-  // Добавить занятие
-  function addLesson(auditorium, timeSlot, lessonData) {
-    console.log("Занятия которые мы собираеся передать:", { auditorium, timeSlot, lessonData });
-    console.log(fullSchedule.value);
+  // Добавить занятия в аудиторию
+  function addLesson(auditorium: string, timeSlot: string, lessonData: LessonData): void {
     if (fullSchedule.value[auditorium]) {
-      console.log("Добавили занятие");
-      
+      console.log("Занятия которые мы собираеся передать:", { auditorium, timeSlot, lessonData });
       fullSchedule.value[auditorium][timeSlot] = lessonData
     }
   }
