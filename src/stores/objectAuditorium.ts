@@ -7,6 +7,7 @@ interface LessonData {
   auditorium: string,
   time: string,
   group_class: string,
+  subject: string,
 }
 
 interface TimeSlotSchedule {
