@@ -2,7 +2,11 @@ import { defineStore } from "pinia";
 import { ref, type Ref } from "vue";
 
 interface LessonData {
-  [key:string]:any
+  id: string,
+  date: string,
+  auditorium: string,
+  time: string,
+  group_class: string,
 }
 
 interface TimeSlotSchedule {
