@@ -2,20 +2,18 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useFormFaculty = defineStore("formFaculty", () => {
-  const arrFormOnFaculty = ref([]);
-  const arrFaculty = ref(["Юридический", "Экономический"])
-  const nowFaculty = ref("")
-  // Функция передачи из факультета, все формы обучения
-  function deliveryToArr(data) {
-    arrFormOnFaculty.value = [];
 
-    for (const item of data) {
-      arrFormOnFaculty.value.push(item);
-    }
-    console.log(arrFormOnFaculty.value);
+  const arrFormOnFaculty = ref<string[]>([]);
+  const arrFaculty = ref<string[]>(["Юридический", "Экономический"])
+  const nowFaculty = ref<string>("")
+
+  // Функция передачи данных о формах обучения
+  function deliveryToArr(data: string[]):void {
+    arrFormOnFaculty.value = [...data];
   }
 
-  function setCurrentFaculty(faculty) {
+  // Установка текущего факультета
+  function setCurrentFaculty(faculty?: string):void {
     if (faculty && arrFaculty.value.includes(faculty)) {
       nowFaculty.value = faculty;
     } else if (arrFaculty.value.length > 0) {
@@ -23,8 +21,8 @@ export const useFormFaculty = defineStore("formFaculty", () => {
     }
   }
 
-  // Получение форму обучения данного факультета
-  async function getFormOnFaculty(faculty = null) {
+  // Получение форм обучения факультета
+  async function getFormOnFaculty(faculty:string | null = null):Promise<void> {
     try {
       if (faculty) {
         setCurrentFaculty(faculty);
@@ -33,20 +31,24 @@ export const useFormFaculty = defineStore("formFaculty", () => {
       }
 
       if (!nowFaculty.value) {
-        throw new Error("Не удалось установить форму обучения");
+        throw new Error("Не удалось установить текущий факультет");
       }
 
       console.log(`Текущая форма факультета: ${nowFaculty.value}`);
 
       const response = await fetch(`/api/schedule/forms?faculty=${nowFaculty.value}`);
-      const data = await response.json();
-      console.log("Какие есть форму обучения?", data);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! статус: ${response.status}`);
+      }
+
+      const data:string[] = await response.json();
 
       if (arrFormOnFaculty.value.length === 0) {
         deliveryToArr(data);
       }
     } catch (error) {
-      console.error("Ошибка в useScheduleDataStore:", error);
+      console.error("Ошибка при получение форм обучения:", error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -55,6 +57,6 @@ export const useFormFaculty = defineStore("formFaculty", () => {
     arrFormOnFaculty,
     setCurrentFaculty,
     arrFaculty,
-    setCurrentFaculty
+    nowFaculty
   };
 });
