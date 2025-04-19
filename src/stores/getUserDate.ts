@@ -4,13 +4,13 @@ import { ref } from "vue";
 export const useUserDate = defineStore("userDate", () => {
   const currentDate = ref<string>("");
 
-  // Функция получения даты пользователя
+  // Функция получения даты пользователя в данный момент
   function getUserCurrentDate(): void {
     const today = new Date();
     currentDate.value = formatDate(today);
     console.log(currentDate.value);
   }
-  //функция форматирования даты к привычной 2025-17-04
+
   function formatDate(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -20,6 +20,6 @@ export const useUserDate = defineStore("userDate", () => {
 
   return {
     getUserCurrentDate,
-    currentDate,
+    currentDate
   };
 });

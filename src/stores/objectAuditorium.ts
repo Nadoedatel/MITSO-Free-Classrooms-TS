@@ -1,34 +1,54 @@
 import { defineStore } from "pinia";
-import { ref, type Ref } from "vue";
-import type { AuditoriumMap, Lesson } from "@/types/schedule";
+import { ref } from "vue";
+
+interface LessonData {
+  id?: number;
+  subject?: string;
+  time?: string;
+  auditorium?: string;
+  [key: string]: any;
+}
+
+type Schedule = {
+  [auditorium: string]: {
+    [timeSlot: string]: LessonData | null;
+  };
+};
 
 export const useAuditorium = defineStore("auditorium", () => {
-  const fullSchedule: Ref<AuditoriumMap> = ref({})
+  const fullSchedule = ref<Schedule>({});
 
   // Инициализация пустого расписания
   function initSchedule(auditoriums: string[], timeSlots: string[]): void {
-    fullSchedule.value = auditoriums.reduce<AuditoriumMap>((acc, aud) => {
+    console.log("Инициализация с параметрами:", { auditoriums, timeSlots });
+
+    const schedule: Schedule = auditoriums.reduce((acc, aud) => {
       acc[aud] = timeSlots.reduce((timeAcc, time) => {
-        timeAcc[time] = null
-        return timeAcc
-      }, {} as Record<string, Lesson | null>)
-      return acc
-    }, {})
-    console.log("Результат инициализации:", JSON.parse(JSON.stringify(fullSchedule.value)))
+        timeAcc[time] = null;
+        return timeAcc;
+      }, {} as Record<string, LessonData | null>);
+      return acc;
+    }, {} as Schedule);
+
+    fullSchedule.value = schedule;
+
+    console.log("Результат инициализации:", JSON.parse(JSON.stringify(fullSchedule.value)));
   }
-  
-  // Добавить занятия в аудиторию
-  function addLesson(auditorium: string, timeSlot: string, lessonData: Lesson): void {
+
+  // Добавить занятие
+  function addLesson(auditorium: string, timeSlot: string, lessonData: LessonData): void {
+    console.log("Занятия которые мы собираемся передать:", { auditorium, timeSlot, lessonData });
+    console.log(fullSchedule.value);
+
     if (fullSchedule.value[auditorium]) {
-      console.log("Занятия которые мы собираеся передать:", { auditorium, timeSlot, lessonData });
-      fullSchedule.value[auditorium][timeSlot] = lessonData
+      console.log("Добавили занятие");
+      fullSchedule.value[auditorium][timeSlot] = lessonData;
     }
   }
 
-  
   return {
     fullSchedule,
     initSchedule,
-    addLesson
+    addLesson,
   };
 });

@@ -6,37 +6,41 @@ import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
-import type { EducationForm, Faculty, Lesson, Course, Group } from "@/types/schedule";
+import type { Faculty } from "@/types/faculty";
 
-interface CorpusConfig {
-  auditoriumsInNewCorpus: string[];
-  auditoriumsInOldCorpus: string[];
-  auditoriumsInDormitory: string[];
+interface Lesson {
+  auditorium: string;
+  time: string;
+  group_class: string;
+  date: string;
+  subject: string;
+  [key: string]: any;
 }
 
-interface Cache {
-  allLessons: Lesson[];
-  initialized: boolean;
+interface Course {
+  name: string;
 }
 
-interface FormWithCourses {
-  form: EducationForm;
-  courses: Course[];
+interface Group {
+  name: string;
 }
 
-interface CourseWithGroups {
+interface Form {
+  name: string;
+}
+
+interface CompleteCourseStructure {
   course: Course;
   groups: Group[];
 }
 
-interface FacultyCompleteData {
-  faculty: Faculty;
-  form: EducationForm;
-  courses: CourseWithGroups[];
+interface CompleteFormStructure {
+  faculty: string;
+  form: Form;
+  courses: CompleteCourseStructure[];
 }
 
 export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
-  // Stores
   const formScheduleStore = useScheduleGroup();
   const formUserDate = useUserDate();
   const formAuditoriumStore = useAuditorium();
@@ -44,14 +48,8 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
   const formCourseStore = useCoursesFaculty();
   const formFacultyStore = useFormFaculty();
 
-  // Refs
   const isLoading = ref(false);
-  const cache = ref<Cache>({
-    allLessons: [],
-    initialized: false
-  });
 
-  // Store refs
   const {
     arrSchedule,
     nowFormOnFaculty,
@@ -63,8 +61,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
   const { arrCourses } = storeToRefs(formCourseStore);
   const { arrGroup } = storeToRefs(formGroupStore);
 
-  // Constants
-  const timeSlots: string[] = [
+  const timeSlots = [
     "08.00-9.25",
     "09.35-11.00",
     "11.10-12.35",
@@ -75,73 +72,71 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
     "19.45-21.10",
   ];
 
-  const corpusConfig: CorpusConfig = {
+  const corpusConfig: Record<string, string[]> = {
     auditoriumsInNewCorpus: [
-      "71", "72 (к)", "73 (к)", "61", "62 (к)", "63 (к)", "64",
-      "51", "52", "53", "54", "41", "42", "43", "44",
-      "31", "32", "33", "34", "21", "22", "23", "24"
+      "71", "72 (к)", "73 (к)", "61", "62 (к)", "63 (к)", "64", "51", "52", "53", "54",
+      "41", "42", "43", "44", "31", "32", "33", "34", "21", "22", "23", "24",
     ],
     auditoriumsInOldCorpus: [
-      "503", "502", "410", "409 (к)", "407 (к)", "406", "405",
-      "307", "306", "305", "304", "211", "216", "222", "111"
+      "503", "502", "410", "409 (к)", "407 (к)", "406", "405", "307", "306", "305",
+      "304", "211", "216", "222", "111",
     ],
     auditoriumsInDormitory: [
-      "909 чжф", "809 чжф", "709 чжф", "509 чжф", "409 чжф",
-      "309 чжф", "209 чжф", "207 чжф", "206 чжф"
-    ]
+      "909 чжф", "809 чжф", "709 чжф", "509 чжф", "409 чжф", "309 чжф", "209 чжф", "207 чжф", "206 чжф",
+    ],
   };
 
-  // Utils
-  const delay = (ms: number): Promise<void> => 
-    new Promise(resolve => setTimeout(resolve, ms));
+  const cache = ref<{ allLessons: Lesson[]; initialized: boolean }>({
+    allLessons: [],
+    initialized: false,
+  });
 
-  // Initialize current date
+  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
   formUserDate.getUserCurrentDate();
 
   const loadAllData = async (): Promise<void> => {
     try {
       isLoading.value = true;
-      
-      const allFaculties: Faculty[] = arrFaculty.value;
+
+      const allFaculties: Faculty[] = arrFaculty.value || [];
       if (allFaculties.length === 0) {
         throw new Error("Нет доступных факультетов");
       }
 
-      const completeData: FacultyCompleteData[] = [];
-      const allForms: EducationForm[] = [];
+      const completeData: CompleteFormStructure[] = [];
+      const allForms = [];
 
       for (const faculty of allFaculties) {
         console.log(`Загрузка данных для факультета: ${faculty.name}`);
-        
-        formFacultyStore.setCurrentFaculty(faculty);
+        formFacultyStore.setCurrentFaculty(faculty.name);
         if (arrFormOnFaculty.value.length === 0) {
           await formFacultyStore.getFormOnFaculty(faculty);
         }
 
-        const facultyForms: EducationForm[] = arrFormOnFaculty.value;
-        if (facultyForms.length === 0) {
-          console.warn(`Нет форм обучения для факультета ${faculty.name}`);
-          continue;
-        }
-        
+        const facultyForms: Form[] = arrFormOnFaculty.value || [];
+        if (!facultyForms.length) continue;
+
         allForms.push(...facultyForms);
 
-        const formsWithCourses: FormWithCourses[] = [];
+        const formsWithCourses = [];
         for (const form of facultyForms) {
+          console.log(`Установили форму обучения: ${form.name}`);
           if (!form?.name) continue;
 
-          formCourseStore.setCurrentForm(form);
-          await formCourseStore.getCourseFaculty(faculty);
+          formCourseStore.setCurrentForm(form.name);
+          await formCourseStore.getCourseFaculty(faculty.name);
 
           formsWithCourses.push({
             form,
             courses: [...arrCourses.value],
           });
+
           await delay(300);
         }
 
         for (const { form, courses } of formsWithCourses) {
-          const formWithCoursesAndGroups: CourseWithGroups[] = [];
+          const courseList: CompleteCourseStructure[] = [];
 
           for (const course of courses) {
             if (!course?.name) continue;
@@ -150,31 +145,26 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
             formGroupStore.setGroup(course);
             await formGroupStore.getGroupOnCourse(faculty);
 
-            formWithCoursesAndGroups.push({
+            courseList.push({
               course,
               groups: [...arrGroup.value],
             });
+
             await delay(300);
           }
 
-          completeData.push({
-            faculty,
-            form,
-            courses: formWithCoursesAndGroups,
-          });
+          completeData.push({ faculty, form, courses: courseList });
         }
       }
 
       formFacultyStore.arrFormOnFaculty.value = allForms;
-      formCourseStore.arrCourses.value = completeData.flatMap(f =>
-        f.courses.map(c => c.course)
+      formCourseStore.arrCourses.value = completeData.flatMap((f) =>
+        f.courses.map((c) => c.course)
       );
-      formGroupStore.arrGroup.value = completeData.flatMap(f =>
-        f.courses.flatMap(c => c.groups)
+      formGroupStore.arrGroup.value = completeData.flatMap((f) =>
+        f.courses.flatMap((c) => c.groups)
       );
-
       formFacultyStore.completeStructure = completeData;
-
     } catch (error) {
       console.error("Ошибка загрузки данных:", error);
       throw error;
@@ -182,7 +172,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
       isLoading.value = false;
     }
   };
-  
+
   const loadAllSchedules = async (): Promise<void> => {
     try {
       isLoading.value = true;
@@ -200,8 +190,8 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
             nowFormOnFaculty.value = form;
             nowCourseOnFormAndFaculty.value = course;
             nowNameGroup.value = group;
-      
-            await formScheduleStore.getScheduleGroup(faculty); 
+
+            await formScheduleStore.getScheduleGroup(faculty);
             allSchedules.push(...(arrSchedule.value || []));
             await delay(300);
           }
@@ -209,12 +199,11 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
       }
 
       const filteredLessons = allSchedules.filter(
-        lesson => lesson?.date === currentDate.value
+        (lesson) => lesson?.date === currentDate.value
       );
-      
+
       formScheduleStore.arrSchedule.value = filteredLessons;
       cache.value.allLessons.push(...filteredLessons);
-
     } catch (error) {
       console.error("Ошибка загрузки расписаний:", error);
       throw error;
@@ -223,10 +212,9 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
     }
   };
 
-  const initFullSchedule = async (nameCorpus: keyof CorpusConfig): Promise<void> => {
+  const initFullSchedule = async (nameCorpus: keyof typeof corpusConfig): Promise<void> => {
     try {
       await formAuditoriumStore.initSchedule(corpusConfig[nameCorpus], timeSlots);
-  
       if (cache.value.allLessons.length > 0) {
         await bookAuditorium();
       }
@@ -241,11 +229,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
       const auditoriumMap = new Map<string, {
         auditorium: string;
         time: string;
-        lessons: Array<{
-          group: string;
-          date: string;
-          subject: string;
-        }>;
+        lessons: { group: string; date: string; subject: string }[];
       }>();
 
       for (const lesson of cache.value.allLessons) {
@@ -258,14 +242,10 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
 
         const key = `${auditorium}-${time}`;
         if (!auditoriumMap.has(key)) {
-          auditoriumMap.set(key, {
-            auditorium,
-            time,
-            lessons: [],
-          });
+          auditoriumMap.set(key, { auditorium, time, lessons: [] });
         }
 
-        auditoriumMap.get(key)?.lessons.push({
+        auditoriumMap.get(key)!.lessons.push({
           group,
           date,
           subject: subject?.trim() || "Занятие",
@@ -274,8 +254,8 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
 
       for (const { auditorium, time, lessons } of auditoriumMap.values()) {
         const mainLesson = lessons[0];
-        const additionalGroups = lessons.length > 1 
-          ? lessons.slice(1).map(l => l.group) 
+        const additionalGroups = lessons.length > 1
+          ? lessons.slice(1).map((l) => l.group)
           : undefined;
 
         await formAuditoriumStore.addLesson(auditorium, time, {
@@ -294,10 +274,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
         }
       }
 
-      console.log(
-        "Бронирование завершено. Обработано аудиторий:",
-        auditoriumMap.size
-      );
+      console.log("Бронирование завершено. Обработано аудиторий:", auditoriumMap.size);
     } catch (error) {
       console.error("Ошибка бронирования аудиторий:", error);
       throw new Error("Не удалось распределить занятия по аудиториям");
