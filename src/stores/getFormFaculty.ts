@@ -4,9 +4,9 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useFormFaculty = defineStore("formFaculty", () => {
-  const arrFormOnFaculty = ref<Form[]>([{"id": "", "name": ""}]);
+  const arrFormOnFaculty = ref<Form[]>([]);
   const arrFaculty = ref<Faculty[]>([{"name":"Юридический"}, {"name":"Экономический"}, {"name":"Магистратура"}]);
-  const nowFaculty = ref<Faculty>({"name": ""});
+  const nowFaculty = ref<Faculty | null>(null);
 
   // Функция передачи из факультета, все формы обучения
   function deliveryToArr(data: Form[]): void {
@@ -19,9 +19,12 @@ export const useFormFaculty = defineStore("formFaculty", () => {
     console.log(arrFormOnFaculty.value);
   }
 
-  function setCurrentFaculty(faculty?: string): void {
-    if (faculty && arrFaculty.value.some(fac => fac.name === faculty)) {
-      nowFaculty.value.name = faculty;
+  function setCurrentFaculty(facultyName?: string): void {
+    if (facultyName) {
+      const faculty = arrFaculty.value.find(fac => fac.name === facultyName);
+      if (faculty) {
+        nowFaculty.value = faculty;
+      }
     } else if (arrFaculty.value.length > 0) {
       nowFaculty.value = arrFaculty.value[0];
     }
