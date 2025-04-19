@@ -1,19 +1,8 @@
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useFormFaculty } from "@/stores/getFormFaculty";
+import type { Course, EducationForm, Faculty, Group } from "@/types/schedule";
 import { defineStore } from "pinia";
 import { computed, ref, type Ref } from "vue";
-
-interface Course {
-  id: string;
-  name: string;
-}
-
-type Form = string | { id: string; name: string };
-
-interface Group {
-  id: string;
-  name: string;
-}
 
 export const useGroupOnCourse = defineStore("groupOnCourse", () => {
   const formCourseStore = useCoursesFaculty();
@@ -21,11 +10,11 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
 
   const arrGroup: Ref<Group[]> = ref([]);
   const nowCourseOnFormAndFaculty: Ref<Course | null> = ref(null);
-  const nowFormOnFaculty: Ref<Form | null> = ref(null);
+  const nowFormOnFaculty: Ref<EducationForm | null> = ref(null);
 
   // Получаем ссылки на массивы из других хранилищ
-  const availableCourses = computed<Course[]>(() => formCourseStore.arrCourses || []);
-  const availableForms = computed<Form[]>(() => formFacultyStore.arrFormOnFaculty || []);
+  const availableCourses = computed(() => formCourseStore.arrCourses || []);
+  const availableForms = computed(() => formFacultyStore.arrFormOnFaculty || []);
 
   function setGroup(course?: Course): void {
     if (course) {
@@ -37,7 +26,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
     }
   }
 
-  function setCurrentForm(form?: Form): void {
+  function setCurrentForm(form?: EducationForm): void {
     if (form) {
       nowFormOnFaculty.value = form;
     } else if (availableForms.value.length > 0) {
@@ -48,7 +37,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
   }
 
   // Обработка полученных групп
-  function deliveryGroupToArr(data: unknown): void {
+  function deliveryGroupToArr(data:Group[]): void {
     if (!Array.isArray(data)) {
       console.error("Получены некорректные данные групп:", data);
       arrGroup.value = [];
@@ -66,17 +55,17 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
   }
 
   // Получение групп по курсу
-  async function getGroupOnCourse(faculty: string | null = null): Promise<void> {
+  const getGroupOnCourse = async (faculty: Faculty): Promise<void> => {
     try {
-      if (availableForms.value.length === 0) {
-        await formFacultyStore.getFormOnFaculty();
+      if (!nowFormOnFaculty.value && availableForms.value.length === 0) {
+        await formFacultyStore.getFormOnFaculty(faculty);
       }
 
       if (!nowFormOnFaculty.value) {
         setCurrentForm();
       }
 
-      if (availableCourses.value.length === 0) {
+      if (!nowCourseOnFormAndFaculty.value && availableCourses.value.length === 0) {
         await formCourseStore.getCourseFaculty(faculty);
       }
 
@@ -84,34 +73,22 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
         setGroup();
       }
 
-      // Безопасное получение имени формы
-      const formName = typeof nowFormOnFaculty.value === 'string' 
-        ? nowFormOnFaculty.value 
-        : nowFormOnFaculty.value?.name;
-
-      if (!formName || !nowCourseOnFormAndFaculty.value?.name) {
+      if (!nowFormOnFaculty.value?.name || !nowCourseOnFormAndFaculty.value?.name) {
         throw new Error("Не удалось установить форму обучения или курс");
       }
 
-      console.log(
-        `Загрузка групп для формы "${formName}" и курса "${nowCourseOnFormAndFaculty.value.name}"`
-      );
-
       const response = await fetch(
-        `/api/schedule/groups?faculty=${faculty}&form=${formName}&course=${nowCourseOnFormAndFaculty.value.name}`
+        `/api/schedule/groups?faculty=${faculty}&form=${nowFormOnFaculty.value.name}&course=${nowCourseOnFormAndFaculty.value.name}`
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error, статус: ${response.status}`);
+        throw new Error(`Ошибка HTTP: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as Group[]; // Кастуем к Group[]
       deliveryGroupToArr(data);
     } catch (error) {
-      console.error(
-        "Ошибка при загрузке групп:", 
-        error instanceof Error ? error.message : String(error)
-      );
+      console.error("Ошибка при загрузке групп:", error);
       throw error;
     }
   }

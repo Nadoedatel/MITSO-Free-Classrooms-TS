@@ -13,30 +13,28 @@ export const useFormFaculty = defineStore("formFaculty", () => {
   }
 
   // Установка текущего факультета
-  function setCurrentFaculty(faculty?: Faculty):void {
-    if (faculty && arrFaculty.value.includes(faculty)) {
-      nowFaculty.value = faculty;
-    } else if (arrFaculty.value.length > 0) {
-      nowFaculty.value = arrFaculty.value[0];
-    }
-  }
+  function setCurrentFaculty(faculty?: Faculty): void {  
+    if (faculty) {  
+      const exists = arrFaculty.value.some(f => f.name === faculty.name);  
+      nowFaculty.value = exists ? faculty : arrFaculty.value[0];  
+    } else {  
+      nowFaculty.value = arrFaculty.value[0];  
+    }  
+  }  
 
   // Получение форм обучения факультета
   async function getFormOnFaculty(faculty:Faculty):Promise<void> {
     try {
-      if (faculty) {
-        setCurrentFaculty(faculty);
-      } else if (!nowFaculty.value) {
-        setCurrentFaculty();
-      }
+      setCurrentFaculty(faculty);  
 
-      if (!nowFaculty.value) {
-        throw new Error("Не удалось установить текущий факультет");
-      }
+      if (!nowFaculty.value) {  
+        throw new Error("Не удалось установить текущий факультет");  
+      } 
 
-      console.log(`Текущая форма факультета: ${nowFaculty.value}`);
 
-      const response = await fetch(`/api/schedule/forms?faculty=${nowFaculty.value}`);
+      console.log(`Текущая форма факультета: ${nowFaculty.value.name}`);
+
+      const response = await fetch(`/api/schedule/forms?faculty=${nowFaculty.value.name}`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! статус: ${response.status}`);

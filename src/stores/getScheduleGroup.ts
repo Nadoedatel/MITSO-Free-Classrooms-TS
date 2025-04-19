@@ -1,18 +1,19 @@
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import { useGroupOnCourse } from "@/stores/getGroupCourses";
-import type { Course } from "@/types/schedule";
+import type { Course, EducationForm, Faculty, Group } from "@/types/schedule";
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { computed, ref, type Ref } from "vue";
 
 export const useScheduleGroup = defineStore("scheduleGroup", () => {
   const formCourseStore = useCoursesFaculty();
   const formFacultyStore = useFormFaculty();
   const formGroupStore = useGroupOnCourse();
 
-  const nowFormOnFaculty = ref("");
-  const nowNameGroup = ref("");
-  const nowCourseOnFormAndFaculty = ref("");
+  const nowFormOnFaculty: Ref<EducationForm | null> = ref(null);
+  const nowNameGroup: Ref<Group | null> = ref(null);
+  const nowCourseOnFormAndFaculty: Ref<Course | null> = ref(null);
+
   const arrSchedule = ref([]);
 
   // Получаем ссылки на массивы из других хранилищ
@@ -30,7 +31,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
     }
   }
 
-  function setCurrentForm(form) {
+  function setCurrentForm(form: EducationForm) {
     if (form) {
       nowFormOnFaculty.value = form;
     } else if (availableForms.value.length > 0) {
@@ -38,7 +39,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
     }
   }
 
-  function setCurrentGroup(group) {
+  function setCurrentGroup(group: Group) {
     if (group) {
       nowNameGroup.value = group;
     } else if (availableGroups.value.length > 0) {
@@ -79,12 +80,12 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
     console.log("Загружено занятий:", arrSchedule.value);
   }
 
-  async function getScheduleGroup(faculty = null) {
+  async function getScheduleGroup(faculty: Faculty) {
     try {
 
       // Загружаем формы обучения при необходимости
       if (availableForms.value.length === 0) {
-        await formFacultyStore.getFormOnFaculty();
+        await formFacultyStore.getFormOnFaculty(faculty);
       }
 
       if (!nowFormOnFaculty.value) {
@@ -93,7 +94,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
 
       // Загружаем курсы при необходимости
       if (availableCourses.value.length === 0) {
-        await formCourseStore.getCourseFaculty();
+        await formCourseStore.getCourseFaculty(faculty);
       }
       if (!nowCourseOnFormAndFaculty.value) {
         setCurrentCourse();
@@ -101,7 +102,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
 
       // Загружаем группы при необходимости
       if (availableGroups.value.length === 0) {
-        await formGroupStore.getGroupOnCourse();
+        await formGroupStore.getGroupOnCourse(faculty);
       }
       if (!nowNameGroup.value) {
         setCurrentGroup();
