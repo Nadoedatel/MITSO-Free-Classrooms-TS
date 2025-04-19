@@ -1,6 +1,5 @@
 // schedule.d.ts
 export interface Faculty {
-  id: string;
   name: string;
 }
 
@@ -30,6 +29,12 @@ export interface Lesson {
   group_class: string | Group;
   subject: string;
 }
+
+interface ScheduleResponse {
+    [week: string]: {
+      [date: string]: Lesson[];
+    };
+  }
 
 export type AuditoriumMap = {
   [auditorium: string]: {

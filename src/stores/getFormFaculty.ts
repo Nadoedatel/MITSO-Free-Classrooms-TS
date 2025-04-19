@@ -1,19 +1,19 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import type { EducationForm, Faculty } from "@/types/schedule";
 
 export const useFormFaculty = defineStore("formFaculty", () => {
-
-  const arrFormOnFaculty = ref<string[]>([]);
-  const arrFaculty = ref<string[]>(["Юридический", "Экономический"])
-  const nowFaculty = ref<string>("")
+  const arrFormOnFaculty = ref<EducationForm[]>([]);
+  const arrFaculty = ref<Faculty[]>([{"name": "Юридический"}, {"name":"Экономический"}, {"name": "Магистратура"}])
+  const nowFaculty = ref<Faculty | null>(null)
 
   // Функция передачи данных о формах обучения
-  function deliveryToArr(data: string[]):void {
+  function deliveryToArr(data: EducationForm[]):void {
     arrFormOnFaculty.value = [...data];
   }
 
   // Установка текущего факультета
-  function setCurrentFaculty(faculty?: string):void {
+  function setCurrentFaculty(faculty?: Faculty):void {
     if (faculty && arrFaculty.value.includes(faculty)) {
       nowFaculty.value = faculty;
     } else if (arrFaculty.value.length > 0) {
@@ -22,7 +22,7 @@ export const useFormFaculty = defineStore("formFaculty", () => {
   }
 
   // Получение форм обучения факультета
-  async function getFormOnFaculty(faculty:string | null = null):Promise<void> {
+  async function getFormOnFaculty(faculty:Faculty):Promise<void> {
     try {
       if (faculty) {
         setCurrentFaculty(faculty);
@@ -42,7 +42,7 @@ export const useFormFaculty = defineStore("formFaculty", () => {
         throw new Error(`HTTP error! статус: ${response.status}`);
       }
 
-      const data:string[] = await response.json();
+      const data:EducationForm[] = await response.json();
 
       if (arrFormOnFaculty.value.length === 0) {
         deliveryToArr(data);

@@ -1,6 +1,7 @@
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import { useGroupOnCourse } from "@/stores/getGroupCourses";
+import type { Course } from "@/types/schedule";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
@@ -21,7 +22,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
   );
   const availableGroups = computed(() => formGroupStore.arrGroup || []);
 
-  function setCurrentCourse(course) {
+  function setCurrentCourse(course:Course) {
     if (course) {
       nowCourseOnFormAndFaculty.value = course;
     } else if (availableCourses.value.length > 0) {
