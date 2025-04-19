@@ -1,52 +1,54 @@
+import type { Faculty } from "@/types/faculty";
+import type { Form } from "@/types/form";
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import type { EducationForm, Faculty } from "@/types/schedule";
 
 export const useFormFaculty = defineStore("formFaculty", () => {
-  const arrFormOnFaculty = ref<EducationForm[]>([]);
-  const arrFaculty = ref<Faculty[]>([{"name": "Юридический"}, {"name":"Экономический"}, {"name": "Магистратура"}])
-  const nowFaculty = ref<Faculty | null>(null)
+  const arrFormOnFaculty = ref<Form[]>([{"id": "", "name": ""}]);
+  const arrFaculty = ref<Faculty[]>([{"name":"Юридический"}, {"name":"Экономический"}, {"name":"Магистратура"}]);
+  const nowFaculty = ref<Faculty>({"name": ""});
 
-  // Функция передачи данных о формах обучения
-  function deliveryToArr(data: EducationForm[]):void {
-    arrFormOnFaculty.value = [...data];
+  // Функция передачи из факультета, все формы обучения
+  function deliveryToArr(data: Form[]): void {
+    arrFormOnFaculty.value = [];
+
+    for (const item of data) {
+      arrFormOnFaculty.value.push(item);
+    }
+
+    console.log(arrFormOnFaculty.value);
   }
 
-  // Установка текущего факультета
-  function setCurrentFaculty(faculty?: Faculty): void {  
-    if (faculty) {  
-      const exists = arrFaculty.value.some(f => f.name === faculty.name);  
-      nowFaculty.value = exists ? faculty : arrFaculty.value[0];  
-    } else {  
-      nowFaculty.value = arrFaculty.value[0];  
-    }  
-  }  
+  function setCurrentFaculty(faculty?: string): void {
+    if (faculty && arrFaculty.value.some(fac => fac.name === faculty)) {
+      nowFaculty.value.name = faculty;
+    } else if (arrFaculty.value.length > 0) {
+      nowFaculty.value = arrFaculty.value[0];
+    }
+  }
 
-  // Получение форм обучения факультета
-  async function getFormOnFaculty(faculty:Faculty):Promise<void> {
+  // Получение форм обучения данного факультета
+  async function getFormOnFaculty(faculty: Faculty): Promise<void> {
     try {
-      setCurrentFaculty(faculty);  
-
-      if (!nowFaculty.value) {  
-        throw new Error("Не удалось установить текущий факультет");  
-      } 
-
+      if (faculty) {
+        setCurrentFaculty(faculty.name);
+      }
+  
+      if (!nowFaculty.value) {
+        throw new Error("Не удалось установить факультет");
+      }
 
       console.log(`Текущая форма факультета: ${nowFaculty.value.name}`);
 
       const response = await fetch(`/api/schedule/forms?faculty=${nowFaculty.value.name}`);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! статус: ${response.status}`);
-      }
-
-      const data:EducationForm[] = await response.json();
+      const data: Form[] = await response.json();
+      console.log("Какие есть формы обучения?", data);
 
       if (arrFormOnFaculty.value.length === 0) {
         deliveryToArr(data);
       }
     } catch (error) {
-      console.error("Ошибка при получение форм обучения:", error instanceof Error ? error.message : String(error));
+      console.error("Ошибка в useFormFaculty:", error);
     }
   }
 
