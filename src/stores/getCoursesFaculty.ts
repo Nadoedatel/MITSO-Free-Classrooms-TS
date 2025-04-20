@@ -1,18 +1,21 @@
 import { useFormFaculty } from "@/stores/getFormFaculty";
+import type { Course } from "@/types/course";
+import type { Faculty } from "@/types/faculty";
+import type { Form } from "@/types/form";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
 export const useCoursesFaculty = defineStore("coursesFaculty", () => {
   const formFacultyStore = useFormFaculty();
-  const nowFormOnFaculty = ref<string>("");
-  const arrCourses = ref<any[]>([]); // Можно заменить any на конкретный тип, если знаешь структуру курсов
+  const nowFormOnFaculty = ref<Form | null>(null);
+  const arrCourses = ref<Course[]>([]);
 
-  const availableForms = computed<string[]>(() =>
+  const availableForms = computed(() =>
     formFacultyStore.arrFormOnFaculty || []
   );
 
   // Функция установки текущей формы обучения
-  function setCurrentForm(form?: string): void {
+  function setCurrentForm(form?: Form): void {
     if (form) {
       nowFormOnFaculty.value = form;
     } else if (availableForms.value.length > 0) {
@@ -21,10 +24,10 @@ export const useCoursesFaculty = defineStore("coursesFaculty", () => {
   }
 
   // Получения курсов данного факультета и данной формы обучения
-  async function getCourseFaculty(faculty: string | null = null): Promise<void> {
+  async function getCourseFaculty(faculty: Faculty): Promise<void> {
     try {
       if (availableForms.value.length === 0) {
-        await formFacultyStore.getFormOnFaculty(faculty ?? undefined);
+        await formFacultyStore.getFormOnFaculty(faculty);
       }
 
       if (!nowFormOnFaculty.value) {
@@ -45,10 +48,10 @@ export const useCoursesFaculty = defineStore("coursesFaculty", () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data: any[] = await response.json(); // Заменить any[] на точный тип, если он известен
-      arrCourses.value = data;
+      const data: Course[] = await response.json();   
+      console.log("Курсы успешно загруженые:", arrCourses.value);
 
-      console.log("Курсы успешно загружены:", arrCourses.value);
+      arrCourses.value = data;
     } catch (error) {
       console.error("Ошибка в getCourseFaculty:", error);
     }

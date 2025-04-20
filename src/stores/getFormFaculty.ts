@@ -45,7 +45,7 @@ export const useFormFaculty = defineStore("formFaculty", () => {
 
       const response = await fetch(`/api/schedule/forms?faculty=${nowFaculty.value.name}`);
       const data: Form[] = await response.json();
-      console.log("Какие есть формы обучения?", data);
+      console.log("Формы обучения:", data);
 
       if (arrFormOnFaculty.value.length === 0) {
         deliveryToArr(data);
