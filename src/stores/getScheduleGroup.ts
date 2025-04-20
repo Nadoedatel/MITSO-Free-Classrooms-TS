@@ -5,7 +5,7 @@ import type { Course } from "@/types/course";
 import type { Faculty } from "@/types/faculty";
 import type { Form } from "@/types/form";
 import type { Group } from "@/types/group";
-import type { Lesson } from "@/types/schedule";
+import type { Lesson } from "@/types/lesson";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
