@@ -2,6 +2,7 @@ import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import { useGroupOnCourse } from "@/stores/getGroupCourses";
 import type { Course } from "@/types/course";
+import type { Faculty } from "@/types/faculty";
 import type { Form } from "@/types/form";
 import type { Group } from "@/types/group";
 import type { Lesson } from "@/types/schedule";
@@ -46,22 +47,13 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
     }
   }
 
-  function processScheduleData(data: Lesson): void {
-    if (!data || typeof data !== "object") {
-      console.error("Некорректные данные расписания:", data);
-      return;
-    }
-
+  function processScheduleData(data: Record<string, Record<string, Lesson[]>>): void {
     const newSchedule: Lesson[] = [];
-
+  
     Object.values(data).forEach((week) => {
-      if (!week || typeof week !== "object") return;
-
       Object.entries(week).forEach(([dateKey, dayLessons]) => {
-        if (!Array.isArray(dayLessons)) return;
-
         dayLessons.forEach((lesson) => {
-          if (lesson?.subject?.trim()) {
+          if (lesson.subject?.trim()) {
             newSchedule.push({
               id: lesson.id,
               date: dateKey,
@@ -74,15 +66,15 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
         });
       });
     });
-
+  
     arrSchedule.value = newSchedule;
-    console.log("Загружено занятий:", arrSchedule.value);
+    console.log("Загружено занятий:", newSchedule.length);
   }
 
-  async function getScheduleGroup(faculty: string | null = null): Promise<void> {
+  async function getScheduleGroup(faculty: Faculty): Promise<void> {
     try {
       if (availableForms.value.length === 0) {
-        await formFacultyStore.getFormOnFaculty(faculty ?? undefined);
+        await formFacultyStore.getFormFaculty(faculty);
       }
 
       if (!nowForm.value) {
@@ -90,7 +82,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
       }
 
       if (availableCourses.value.length === 0) {
-        await formCourseStore.getCourseFaculty(faculty ?? undefined);
+        await formCourseStore.getCourseFaculty(faculty);
       }
 
       if (!nowCourse.value) {
@@ -98,7 +90,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
       }
 
       if (availableGroups.value.length === 0) {
-        await formGroupStore.getGroupOnCourse(faculty ?? undefined);
+        await formGroupStore.getGroupCourse(faculty);
       }
 
       if (!nowGroup.value) {
@@ -127,7 +119,9 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
         throw new Error(`Ошибка HTTP: ${response.status}`);
       }
 
-      const data: ScheduleData = await response.json();
+      const data: Lesson = await response.json();
+      console.log("%c Расписание успешно загружено:", 'background: red', data);
+
       processScheduleData(data);
     } catch (error) {
       console.error("Ошибка при загрузке расписания:", error);
