@@ -2,21 +2,23 @@ import type { Faculty } from "@/types/faculty";
 import type { Form } from "@/types/form";
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import type { CompleteStructureItem } from "@/types/structure";
+
 
 export const useFormFaculty = defineStore("formFaculty", () => {
   const arrForm = ref<Form[]>([]);
   const arrFaculty = ref<Faculty[]>([{"name":"Юридический"}, {"name":"Экономический"}, {"name":"Магистратура"}]);
   const nowFaculty = ref<Faculty | null>(null);
+  const completeStructure = ref<CompleteStructureItem[]>([]);
+
 
   // Функция передачи из факультета, все формы обучения
   function deliveryToArr(data: Form[]): void {
     arrForm.value = [];
-
+    
     for (const item of data) {
       arrForm.value.push(item);
     }
-
-    console.log(arrForm.value);
   }
 
   function setCurrentFaculty(facultyName?: string): void {
@@ -35,6 +37,8 @@ export const useFormFaculty = defineStore("formFaculty", () => {
     try {
       if (faculty) {
         setCurrentFaculty(faculty.name);
+      } else if (!nowFaculty.value) {
+        setCurrentFaculty();
       }
   
       if (!nowFaculty.value) {
@@ -60,6 +64,7 @@ export const useFormFaculty = defineStore("formFaculty", () => {
     arrForm,
     setCurrentFaculty,
     arrFaculty,
-    nowFaculty
+    nowFaculty,
+    completeStructure
   };
 });

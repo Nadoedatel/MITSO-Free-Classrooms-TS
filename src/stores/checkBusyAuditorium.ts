@@ -6,9 +6,14 @@ import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
-import type { Faculty } from "@/types/faculty";
 import { TIME_SLOTS } from "@/constants/timeSlots";
-import type { CORPUS_CONFIG } from "@/constants/corpusConfig";
+import { CORPUS_CONFIG } from "@/constants/corpusConfig";
+import type { Lesson } from "@/types/lesson";
+import type { Faculty } from "@/types/faculty";
+import type { Form } from "@/types/form";
+import type { Course } from "@/types/course";
+import type { Group } from "@/types/group";
+import type { CompleteStructureItem } from "@/types/structure"
 
 export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
   const formScheduleStore = useScheduleGroup();
@@ -39,116 +44,113 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
   const loadAllData = async (): Promise<void> => {
     try {
       isLoading.value = true;
-
-      const allFaculties: Faculty[] = arrFaculty.value || [];
-      if (allFaculties.length === 0) {
+      
+      const allFaculties = arrFaculty.value || [];
+      if (!allFaculties.length) {
         throw new Error("Нет доступных факультетов");
       }
-
-      const completeData: CompleteFormStructure[] = [];
-      const allForms = [];
-
+  
+      const completeData: CompleteStructureItem[] = [];
+  
       for (const faculty of allFaculties) {
-        console.log(`Загрузка данных для факультета: ${faculty.name}`);
+        console.log('%c Загрузка данных для факультета', 'background: yellow;', faculty.name);
+  
+        // 1. Загрузка форм обучения
         formFacultyStore.setCurrentFaculty(faculty.name);
-        if (arrForm.value.length === 0) {
-          await formFacultyStore.getFormFaculty(faculty);
-        }
-
-        const facultyForms: Form[] = arrForm.value || [];
+        await formFacultyStore.getFormFaculty(faculty);
+  
+        const facultyForms = arrForm.value;
         if (!facultyForms.length) continue;
-
-        allForms.push(...facultyForms);
-
-        const formsWithCourses = [];
+  
         for (const form of facultyForms) {
-          console.log(`Установили форму обучения: ${form.name}`);
           if (!form?.name) continue;
-
-          formCourseStore.setCurrentForm(form.name);
-          await formCourseStore.getCourseFaculty(faculty.name);
-
-          formsWithCourses.push({
-            form,
-            courses: [...arrCourses.value],
-          });
-
+  
+          console.log('%c Загрузка данных для формы', 'background: green;', form.name);
+          formCourseStore.setCurrentForm(form);
+          await formCourseStore.getCourseFaculty(faculty);
+  
+          const formCourses = [...arrCourses.value];
           await delay(300);
-        }
-
-        for (const { form, courses } of formsWithCourses) {
-          const courseList: CompleteCourseStructure[] = [];
-
-          for (const course of courses) {
+  
+          const coursesWithGroups: { course: Course; groups: Group[] }[] = [];
+  
+          for (const course of formCourses) {
             if (!course?.name) continue;
-
+  
+            console.log('%c Загрузка данных для курса', 'background: violet;', course.name);
             formGroupStore.setCurrentForm(form);
             formGroupStore.setGroup(course);
             await formGroupStore.getGroupCourse(faculty);
-
-            courseList.push({
-              course,
-              groups: [...arrGroup.value],
-            });
-
+  
+            const courseGroups = [...arrGroup.value];
             await delay(300);
+  
+            coursesWithGroups.push({ course, groups: courseGroups });
           }
-
-          completeData.push({ faculty, form, courses: courseList });
+  
+          completeData.push({
+            faculty,
+            form,
+            courses: coursesWithGroups,
+          });
         }
       }
-
-      formFacultyStore.arrForm.value = allForms;
-      formCourseStore.arrCourses.value = completeData.flatMap((f) =>
-        f.courses.map((c) => c.course)
-      );
-      formGroupStore.arrGroup.value = completeData.flatMap((f) =>
-        f.courses.flatMap((c) => c.groups)
-      );
+  
+      // Сохраняем полную структуру в хранилище
       formFacultyStore.completeStructure = completeData;
+  
+      // Дополнительно: сохранить flat данные (если нужно где-то отдельно)
+      arrForm.value = completeData.map(item => item.form);
+      arrCourses.value = completeData.flatMap(item => item.courses.map(c => c.course));
+      arrGroup.value = completeData.flatMap(item =>
+        item.courses.flatMap(c => c.groups)
+      );
+  
     } catch (error) {
-      console.error("Ошибка загрузки данных:", error);
+      console.error("Ошибка загрузки:", error);
       throw error;
     } finally {
       isLoading.value = false;
     }
   };
+  
 
   const loadAllSchedules = async (): Promise<void> => {
     try {
       isLoading.value = true;
       cache.value.allLessons = [];
-
-      if (!formFacultyStore.completeStructure) {
+  
+      const structure = formFacultyStore.completeStructure;
+      if (!structure || !structure.length) {
         throw new Error("Сначала загрузите данные (loadAllData)");
       }
-
+  
       const allSchedules: Lesson[] = [];
-
-      for (const {
-        faculty,
-        form,
-        courses,
-      } of formFacultyStore.completeStructure) {
+  
+      for (const { faculty, form, courses } of structure) {
         for (const { course, groups } of courses) {
           for (const group of groups) {
             nowForm.value = form;
             nowCourse.value = course;
             nowGroup.value = group;
-
+  
+            console.log('%c Загрузка расписания для группы:', 'background: tan;', group.name, course.name, form.name, faculty.name);
             await formScheduleStore.getScheduleGroup(faculty);
+  
             allSchedules.push(...(arrSchedule.value || []));
             await delay(300);
           }
         }
       }
-
+  
+      // Фильтрация по текущей дате
       const filteredLessons = allSchedules.filter(
         (lesson) => lesson?.date === currentDate.value
       );
-
-      formScheduleStore.arrSchedule.value = filteredLessons;
+  
+      arrSchedule.value = filteredLessons;
       cache.value.allLessons.push(...filteredLessons);
+  
     } catch (error) {
       console.error("Ошибка загрузки расписаний:", error);
       throw error;
@@ -156,6 +158,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
       isLoading.value = false;
     }
   };
+  
 
   const initFullSchedule = async (
     nameCorpus: keyof typeof CORPUS_CONFIG

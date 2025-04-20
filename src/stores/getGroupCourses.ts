@@ -4,8 +4,8 @@ import type { Course } from "@/types/course";
 import type { Faculty } from "@/types/faculty";
 import type { Form } from "@/types/form";
 import type { Group } from "@/types/group";
-import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { defineStore, storeToRefs } from "pinia";
+import { ref } from "vue";
 
 export const useGroupOnCourse = defineStore("groupOnCourse", () => {
   const formCourseStore = useCoursesFaculty();
@@ -13,24 +13,23 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
 
   const arrGroup = ref<Group[]>([]); 
   const nowCourse = ref<Course | null>(null);
-  const nowForm = ref<Form | null>(null);
 
-  const availableCourses = computed(() => formCourseStore.arrCourses || []);
-  const availableForms = computed(() => formFacultyStore.arrForm || []);
+  const { arrCourses, nowForm } = storeToRefs(formCourseStore);
+  const { arrForm } = storeToRefs(formFacultyStore);
 
   function setGroup(course?: Group): void {
     if (course) {
       nowCourse.value = course;
-    } else if (availableCourses.value.length > 0) {
-      nowCourse.value = availableCourses.value[0];
+    } else if (arrCourses.value.length > 0) {
+      nowCourse.value = arrCourses.value[0];
     }
   }
 
   function setCurrentForm(form?: Form): void {
     if (form) {
       nowForm.value = form;
-    } else if (availableForms.value.length > 0) {
-      nowForm.value = availableForms.value[0];
+    } else if (arrForm.value.length > 0) {
+      nowForm.value = arrForm.value[0];
     }
   }
 
@@ -41,7 +40,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
 
   async function getGroupCourse(faculty: Faculty): Promise<void> {
     try {
-      if (!availableForms.value.length) {
+      if (!arrForm.value.length) {
         await formFacultyStore.getFormFaculty(faculty);
       }
 
@@ -49,7 +48,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
         setCurrentForm();
       }
 
-      if (!availableCourses.value.length) {
+      if (!arrCourses.value.length) {
         await formCourseStore.getCourseFaculty(faculty);
       }
 
@@ -62,14 +61,15 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
         !nowCourse.value?.name
       ) {
         throw new Error("Не удалось установить форму обучения или курс");
+        
       }
 
       console.log(
-        `Загрузка групп для формы "${nowForm.value.name}" и курса "${nowCourse.value.name}"`
+        `Загрузка групп для формы "${nowForm.value.name}" и курса "${nowCourse.value.name}, Факультет: ${faculty.name}"`
       );
 
       const response = await fetch(
-        `/api/schedule/groups?faculty=${faculty}&form=${nowForm.value.name}&course=${nowCourse.value.name}`
+        `/api/schedule/groups?faculty=${faculty.name}&form=${nowForm.value.name}&course=${nowCourse.value.name}`
       );
 
       if (!response.ok) {

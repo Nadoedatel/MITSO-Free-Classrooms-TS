@@ -6,44 +6,43 @@ import type { Faculty } from "@/types/faculty";
 import type { Form } from "@/types/form";
 import type { Group } from "@/types/group";
 import type { Lesson } from "@/types/lesson";
-import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { defineStore, storeToRefs } from "pinia";
+import { ref } from "vue";
 
 export const useScheduleGroup = defineStore("scheduleGroup", () => {
   const formCourseStore = useCoursesFaculty();
   const formFacultyStore = useFormFaculty();
   const formGroupStore = useGroupOnCourse();
 
-  const nowForm = ref<Form | null>(null);
-  const nowCourse = ref<Course | null>(null);
   const nowGroup = ref<Group | null>(null);
   const arrSchedule = ref<Lesson[]>([]);
 
-  const availableCourses = computed(() => formCourseStore.arrCourses || []);
-  const availableForms = computed(() => formFacultyStore.arrForm || []);
-  const availableGroups = computed(() => formGroupStore.arrGroup || []);
+  const { arrCourses, nowForm } = storeToRefs(formCourseStore);
+  const { arrForm } = storeToRefs(formFacultyStore);
+  const { arrGroup, nowCourse } = storeToRefs(formGroupStore);
+
 
   function setCurrentCourse(course?: Course): void {
     if (course) {
       nowCourse.value = course;
-    } else if (availableCourses.value.length > 0) {
-      nowCourse.value = availableCourses.value[0];
+    } else if (arrCourses.value.length > 0) {
+      nowCourse.value = arrCourses.value[0];
     }
   }
 
   function setCurrentForm(form?: Form): void {
     if (form) {
       nowForm.value = form;
-    } else if (availableForms.value.length > 0) {
-      nowForm.value = availableForms.value[0];
+    } else if (arrForm.value.length > 0) {
+      nowForm.value = arrForm.value[0];
     }
   }
 
-  function setCurrentGroup(group?: Group): void {
+  function setCurrentGroup(group?: Group) {
     if (group) {
       nowGroup.value = group;
-    } else if (availableGroups.value.length > 0) {
-      nowGroup.value = availableGroups.value[0];
+    } else if (arrGroup.value.length > 0) {
+      nowGroup.value = arrGroup.value[0];
     }
   }
 
@@ -73,7 +72,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
 
   async function getScheduleGroup(faculty: Faculty): Promise<void> {
     try {
-      if (availableForms.value.length === 0) {
+      if (arrForm.value.length === 0) {
         await formFacultyStore.getFormFaculty(faculty);
       }
 
@@ -81,7 +80,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
         setCurrentForm();
       }
 
-      if (availableCourses.value.length === 0) {
+      if (arrCourses.value.length === 0) {
         await formCourseStore.getCourseFaculty(faculty);
       }
 
@@ -89,10 +88,10 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
         setCurrentCourse();
       }
 
-      if (availableGroups.value.length === 0) {
+      if (arrGroup.value.length === 0) {
         await formGroupStore.getGroupCourse(faculty);
       }
-
+      
       if (!nowGroup.value) {
         setCurrentGroup();
       }
@@ -106,13 +105,13 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
       }
 
       console.log(`Загрузка расписания для: 
-          Факультет: ${faculty},
+          Факультет: ${faculty.name},
           Форма: ${nowForm.value.name}, 
           Курс: ${nowCourse.value.name},
           Группа: ${nowGroup.value.name}`);
 
       const response = await fetch(
-        `/api/schedule/group-schedules?faculty=${faculty}&form=${nowForm.value.name}&course=${nowCourse.value.name}&group=${nowGroup.value.name}`
+        `/api/schedule/group-schedules?faculty=${faculty.name}&form=${nowForm.value.name}&course=${nowCourse.value.name}&group=${nowGroup.value.name}`
       );
 
       if (!response.ok) {
@@ -120,7 +119,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
       }
 
       const data: Lesson = await response.json();
-      console.log("%c Расписание успешно загружено:", 'background: red', data);
+      console.log("%c Расписание успешно загружено:", 'background: gray', data);
 
       processScheduleData(data);
     } catch (error) {
