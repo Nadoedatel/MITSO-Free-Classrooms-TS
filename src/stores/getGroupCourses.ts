@@ -34,11 +34,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
     }
   }
 
-  function setGroupInArr(data: Group): void {
-    if (!data || !Array.isArray(data)) {
-      console.error("Получены некорректные данные групп:", data);
-      return;
-    }
+  function setGroupInArr(data: Group[]): void {
     arrGroup.value = data;
     console.log("Группы загружены:", arrGroup.value);
   }
@@ -80,7 +76,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
         throw new Error(`Ошибка HTTP: ${response.status}`);
       }
 
-      const data: Group = await response.json();
+      const data: Group[] = await response.json();
       console.log("%c Курсы успешно загруженые:", 'background: red', data);
 
       setGroupInArr(data);
