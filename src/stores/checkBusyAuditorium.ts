@@ -7,8 +7,8 @@ import { useFormFaculty } from "@/stores/getFormFaculty";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import type { Faculty } from "@/types/faculty";
-import { timeSlots } from "@/constants/timeSlots";
-import type { corpusConfig } from "@/constants/corpusConfig";
+import { TIME_SLOTS } from "@/constants/timeSlots";
+import type { CORPUS_CONFIG } from "@/constants/corpusConfig";
 
 export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
   const formScheduleStore = useScheduleGroup();
@@ -158,12 +158,12 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
   };
 
   const initFullSchedule = async (
-    nameCorpus: keyof typeof corpusConfig
+    nameCorpus: keyof typeof CORPUS_CONFIG
   ): Promise<void> => {
     try {
       await formAuditoriumStore.initSchedule(
-        corpusConfig[nameCorpus],
-        timeSlots
+        CORPUS_CONFIG[nameCorpus],
+        TIME_SLOTS
       );
       if (cache.value.allLessons.length > 0) {
         await bookAuditorium();

@@ -1,4 +1,4 @@
-export const timeSlots = [
+export const TIME_SLOTS = [
     "08.00-9.25",
     "09.35-11.00",
     "11.10-12.35",

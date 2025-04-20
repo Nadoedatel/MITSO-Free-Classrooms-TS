@@ -1,4 +1,4 @@
-export const corpusConfig: Record<string, string[]> = {
+export const CORPUS_CONFIG: Record<string, string[]> = {
     auditoriumsInNewCorpus: [
       "71",
       "72 (к)",
