@@ -7,38 +7,8 @@ import { useFormFaculty } from "@/stores/getFormFaculty";
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import type { Faculty } from "@/types/faculty";
-
-interface Lesson {
-  auditorium: string;
-  time: string;
-  group_class: string;
-  date: string;
-  subject: string;
-  [key: string]: any;
-}
-
-interface Course {
-  name: string;
-}
-
-interface Group {
-  name: string;
-}
-
-interface Form {
-  name: string;
-}
-
-interface CompleteCourseStructure {
-  course: Course;
-  groups: Group[];
-}
-
-interface CompleteFormStructure {
-  faculty: string;
-  form: Form;
-  courses: CompleteCourseStructure[];
-}
+import { timeSlots } from "@/constants/timeSlots";
+import type { corpusConfig } from "@/constants/corpusConfig";
 
 export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
   const formScheduleStore = useScheduleGroup();
@@ -50,48 +20,19 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
 
   const isLoading = ref(false);
 
-  const {
-    arrSchedule,
-    nowFormOnFaculty,
-    nowNameGroup,
-    nowCourseOnFormAndFaculty,
-  } = storeToRefs(formScheduleStore);
+  const { arrSchedule, nowForm, nowGroup, nowCourse } = storeToRefs(formScheduleStore);
   const { currentDate } = storeToRefs(formUserDate);
   const { arrForm, arrFaculty } = storeToRefs(formFacultyStore);
   const { arrCourses } = storeToRefs(formCourseStore);
   const { arrGroup } = storeToRefs(formGroupStore);
-
-  const timeSlots = [
-    "08.00-9.25",
-    "09.35-11.00",
-    "11.10-12.35",
-    "13.05-14.30",
-    "14.40-16.05",
-    "16.35-18.00",
-    "18.10-19.35",
-    "19.45-21.10",
-  ];
-
-  const corpusConfig: Record<string, string[]> = {
-    auditoriumsInNewCorpus: [
-      "71", "72 (к)", "73 (к)", "61", "62 (к)", "63 (к)", "64", "51", "52", "53", "54",
-      "41", "42", "43", "44", "31", "32", "33", "34", "21", "22", "23", "24",
-    ],
-    auditoriumsInOldCorpus: [
-      "503", "502", "410", "409 (к)", "407 (к)", "406", "405", "307", "306", "305",
-      "304", "211", "216", "222", "111",
-    ],
-    auditoriumsInDormitory: [
-      "909 чжф", "809 чжф", "709 чжф", "509 чжф", "409 чжф", "309 чжф", "209 чжф", "207 чжф", "206 чжф",
-    ],
-  };
 
   const cache = ref<{ allLessons: Lesson[]; initialized: boolean }>({
     allLessons: [],
     initialized: false,
   });
 
-  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
 
   formUserDate.getUserCurrentDate();
 
@@ -184,12 +125,16 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
 
       const allSchedules: Lesson[] = [];
 
-      for (const { faculty, form, courses } of formFacultyStore.completeStructure) {
+      for (const {
+        faculty,
+        form,
+        courses,
+      } of formFacultyStore.completeStructure) {
         for (const { course, groups } of courses) {
           for (const group of groups) {
-            nowFormOnFaculty.value = form;
-            nowCourseOnFormAndFaculty.value = course;
-            nowNameGroup.value = group;
+            nowForm.value = form;
+            nowCourse.value = course;
+            nowGroup.value = group;
 
             await formScheduleStore.getScheduleGroup(faculty);
             allSchedules.push(...(arrSchedule.value || []));
@@ -212,9 +157,14 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
     }
   };
 
-  const initFullSchedule = async (nameCorpus: keyof typeof corpusConfig): Promise<void> => {
+  const initFullSchedule = async (
+    nameCorpus: keyof typeof corpusConfig
+  ): Promise<void> => {
     try {
-      await formAuditoriumStore.initSchedule(corpusConfig[nameCorpus], timeSlots);
+      await formAuditoriumStore.initSchedule(
+        corpusConfig[nameCorpus],
+        timeSlots
+      );
       if (cache.value.allLessons.length > 0) {
         await bookAuditorium();
       }
@@ -226,11 +176,14 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
 
   const bookAuditorium = async (): Promise<void> => {
     try {
-      const auditoriumMap = new Map<string, {
-        auditorium: string;
-        time: string;
-        lessons: { group: string; date: string; subject: string }[];
-      }>();
+      const auditoriumMap = new Map<
+        string,
+        {
+          auditorium: string;
+          time: string;
+          lessons: { group: string; date: string; subject: string }[];
+        }
+      >();
 
       for (const lesson of cache.value.allLessons) {
         const { auditorium, time, group_class: group, date, subject } = lesson;
@@ -254,9 +207,8 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
 
       for (const { auditorium, time, lessons } of auditoriumMap.values()) {
         const mainLesson = lessons[0];
-        const additionalGroups = lessons.length > 1
-          ? lessons.slice(1).map((l) => l.group)
-          : undefined;
+        const additionalGroups =
+          lessons.length > 1 ? lessons.slice(1).map((l) => l.group) : undefined;
 
         await formAuditoriumStore.addLesson(auditorium, time, {
           group: mainLesson.group,
@@ -274,7 +226,10 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
         }
       }
 
-      console.log("Бронирование завершено. Обработано аудиторий:", auditoriumMap.size);
+      console.log(
+        "Бронирование завершено. Обработано аудиторий:",
+        auditoriumMap.size
+      );
     } catch (error) {
       console.error("Ошибка бронирования аудиторий:", error);
       throw new Error("Не удалось распределить занятия по аудиториям");
