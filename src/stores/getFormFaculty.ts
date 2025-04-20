@@ -4,19 +4,19 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useFormFaculty = defineStore("formFaculty", () => {
-  const arrFormOnFaculty = ref<Form[]>([]);
+  const arrForm = ref<Form[]>([]);
   const arrFaculty = ref<Faculty[]>([{"name":"Юридический"}, {"name":"Экономический"}, {"name":"Магистратура"}]);
   const nowFaculty = ref<Faculty | null>(null);
 
   // Функция передачи из факультета, все формы обучения
   function deliveryToArr(data: Form[]): void {
-    arrFormOnFaculty.value = [];
+    arrForm.value = [];
 
     for (const item of data) {
-      arrFormOnFaculty.value.push(item);
+      arrForm.value.push(item);
     }
 
-    console.log(arrFormOnFaculty.value);
+    console.log(arrForm.value);
   }
 
   function setCurrentFaculty(facultyName?: string): void {
@@ -31,7 +31,7 @@ export const useFormFaculty = defineStore("formFaculty", () => {
   }
 
   // Получение форм обучения данного факультета
-  async function getFormOnFaculty(faculty: Faculty): Promise<void> {
+  async function getFormFaculty(faculty: Faculty): Promise<void> {
     try {
       if (faculty) {
         setCurrentFaculty(faculty.name);
@@ -45,9 +45,9 @@ export const useFormFaculty = defineStore("formFaculty", () => {
 
       const response = await fetch(`/api/schedule/forms?faculty=${nowFaculty.value.name}`);
       const data: Form[] = await response.json();
-      console.log("Формы обучения:", data);
+      console.log("%c Формы обучения:", 'background: red', data);
 
-      if (arrFormOnFaculty.value.length === 0) {
+      if (arrForm.value.length === 0) {
         deliveryToArr(data);
       }
     } catch (error) {
@@ -56,8 +56,8 @@ export const useFormFaculty = defineStore("formFaculty", () => {
   }
 
   return {
-    getFormOnFaculty,
-    arrFormOnFaculty,
+    getFormFaculty,
+    arrForm,
     setCurrentFaculty,
     arrFaculty,
     nowFaculty

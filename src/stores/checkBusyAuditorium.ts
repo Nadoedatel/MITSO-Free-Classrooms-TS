@@ -57,7 +57,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
     nowCourseOnFormAndFaculty,
   } = storeToRefs(formScheduleStore);
   const { currentDate } = storeToRefs(formUserDate);
-  const { arrFormOnFaculty, arrFaculty } = storeToRefs(formFacultyStore);
+  const { arrForm, arrFaculty } = storeToRefs(formFacultyStore);
   const { arrCourses } = storeToRefs(formCourseStore);
   const { arrGroup } = storeToRefs(formGroupStore);
 
@@ -110,11 +110,11 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
       for (const faculty of allFaculties) {
         console.log(`Загрузка данных для факультета: ${faculty.name}`);
         formFacultyStore.setCurrentFaculty(faculty.name);
-        if (arrFormOnFaculty.value.length === 0) {
-          await formFacultyStore.getFormOnFaculty(faculty);
+        if (arrForm.value.length === 0) {
+          await formFacultyStore.getFormFaculty(faculty);
         }
 
-        const facultyForms: Form[] = arrFormOnFaculty.value || [];
+        const facultyForms: Form[] = arrForm.value || [];
         if (!facultyForms.length) continue;
 
         allForms.push(...facultyForms);
@@ -143,7 +143,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
 
             formGroupStore.setCurrentForm(form);
             formGroupStore.setGroup(course);
-            await formGroupStore.getGroupOnCourse(faculty);
+            await formGroupStore.getGroupCourse(faculty);
 
             courseList.push({
               course,
@@ -157,7 +157,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
         }
       }
 
-      formFacultyStore.arrFormOnFaculty.value = allForms;
+      formFacultyStore.arrForm.value = allForms;
       formCourseStore.arrCourses.value = completeData.flatMap((f) =>
         f.courses.map((c) => c.course)
       );
