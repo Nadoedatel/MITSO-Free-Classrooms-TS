@@ -1,9 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-// import { useFormFaculty } from "@/stores/getFormFaculty";
-// import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
-// import { useGroupOnCourse } from "@/stores/getGroupCourses";
-// import { useScheduleGroup } from "@/stores/getScheduleGroup";
 import { useCheckBusyAuditorium } from "@/stores/checkBusyAuditorium";
 import { useAuditorium } from "@/stores/objectAuditorium";
 import AuditoriumList from '@/components/Auditoriums/AuditoriumList.vue';
@@ -13,10 +9,6 @@ import BuildingSelector from '@/components/Auditoriums/BuildingSelector.vue';
 
 const auditoriumStore = useAuditorium();
 const checkBusyAuditorium = useCheckBusyAuditorium();
-// const getScheduleGroup = useScheduleGroup();
-// const getGroupCourses = useGroupOnCourse();
-// const getCourseFaculty = useCoursesFaculty();
-// const getFormsStuding = useFormFaculty();
 
 const isLoading = ref(false);
 const error = ref(null);

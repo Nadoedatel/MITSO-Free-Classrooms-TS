@@ -5,7 +5,7 @@
         <div 
           v-for="(lesson, time) in schedule" 
           :key="time" 
-          class="border rounded p-3 transition-all hover:shadow-md"
+          class="border rounded p-3 transition-all hover:shadow-md hover:shadow-blue-400"
           :class="{
             'bg-red-200 border-red-200': lesson,
             'bg-gray-50 border-gray-200': !lesson
