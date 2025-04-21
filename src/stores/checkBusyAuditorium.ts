@@ -162,13 +162,44 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
     nameCorpus: keyof typeof CORPUS_CONFIG
   ): Promise<void> => {
     try {
+      // 1. Инициализация расписания аудиторий
       await formAuditoriumStore.initSchedule(
         CORPUS_CONFIG[nameCorpus],
         TIME_SLOTS
       );
+  
+      // 2. Проверка localStorage на наличие сохраненных данных
+      const savedBookings = localStorage.getItem('auditoriumBookings');
+      
+      if (savedBookings) {
+        try {
+          const bookingsData = JSON.parse(savedBookings);
+          
+          // 3. Восстановление данных из localStorage
+          for (const booking of bookingsData.bookings) {
+            await formAuditoriumStore.addLesson(
+              booking.auditorium,
+              booking.time,
+              {
+                group: booking.mainGroup,
+                date: booking.date,
+                subject: booking.subject,
+                additionalGroups: booking.additionalGroups
+              }
+            );
+          }
+          
+          console.log(`Восстановлено ${bookingsData.bookings.length} бронирований из localStorage`);
+        } catch (e) {
+          console.error('Ошибка при загрузке данных из localStorage:', e);
+        }
+      }
+  
+      // 4. Обработка текущих занятий (если есть)
       if (cache.value.allLessons.length > 0) {
         await bookAuditorium();
       }
+  
     } catch (error) {
       console.error("Ошибка инициализации корпуса:", error);
       throw error;
@@ -185,39 +216,66 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
           lessons: { group: string; date: string; subject: string }[];
         }
       >();
-
+  
+      // 1. Обрабатываем данные как раньше
       for (const lesson of cache.value.allLessons) {
         const { auditorium, time, group_class: group, date, subject } = lesson;
-
+  
         if (!auditorium || !time || !group || !date) {
           console.warn("Пропуск элемента с неполными данными:", lesson);
           continue;
         }
-
+  
         const key = `${auditorium}-${time}`;
         if (!auditoriumMap.has(key)) {
           auditoriumMap.set(key, { auditorium, time, lessons: [] });
         }
-
+  
         auditoriumMap.get(key)!.lessons.push({
           group,
           date,
           subject: subject?.trim() || "Занятие",
         });
       }
-
+  
+      // 2. Подготовка данных для сохранения
+      const bookingData = {
+        timestamp: new Date().toISOString(),
+        bookings: Array.from(auditoriumMap.values()).map(({ auditorium, time, lessons }) => {
+          const mainLesson = lessons[0];
+          const additionalGroups = lessons.length > 1 
+            ? lessons.slice(1).map(l => l.group) 
+            : undefined;
+  
+          return {
+            auditorium,
+            time,
+            mainGroup: mainLesson.group,
+            date: mainLesson.date,
+            subject: mainLesson.subject,
+            additionalGroups,
+            bookedAt: new Date().toISOString()
+          };
+        })
+      };
+  
+      // 3. Сохранение в localStorage
+      localStorage.setItem('auditoriumBookings', JSON.stringify(bookingData));
+  
+      // 4. Оригинальная логика обработки
       for (const { auditorium, time, lessons } of auditoriumMap.values()) {
         const mainLesson = lessons[0];
-        const additionalGroups =
-          lessons.length > 1 ? lessons.slice(1).map((l) => l.group) : undefined;
-
+        const additionalGroups = lessons.length > 1 
+          ? lessons.slice(1).map(l => l.group) 
+          : undefined;
+  
         await formAuditoriumStore.addLesson(auditorium, time, {
           group: mainLesson.group,
           date: mainLesson.date,
           subject: mainLesson.subject,
           additionalGroups,
         });
-
+  
         if (additionalGroups) {
           console.log(
             `Аудитория ${auditorium}, время ${time}:`,
@@ -226,7 +284,7 @@ export const useCheckBusyAuditorium = defineStore("checkBusyAuditorium", () => {
           );
         }
       }
-
+  
       console.log(
         "Бронирование завершено. Обработано аудиторий:",
         auditoriumMap.size

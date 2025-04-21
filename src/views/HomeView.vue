@@ -6,7 +6,9 @@ import AuditoriumList from '@/components/Auditoriums/AuditoriumList.vue';
 import PreLoader from '@/components/UI/preLoader.vue';
 import ControlPanel from '@/components/Auditoriums/ControlPanel.vue';
 import BuildingSelector from '@/components/Auditoriums/BuildingSelector.vue';
+import { useClearLocalStorage } from '@/stores/clearLocalStorage';
 
+const clearLocalStorage = useClearLocalStorage()
 const auditoriumStore = useAuditorium();
 const checkBusyAuditorium = useCheckBusyAuditorium();
 
@@ -40,6 +42,14 @@ const loadAuditoriums = async (corpusType) => {
   }
 };
 
+function handleAction(method) {
+  if (method === 'init') {
+    loadData();
+  } else if (method === 'clear') {
+    clearLocalStorage.clearAll();
+    loadAuditoriums
+  }
+}
 
 </script>
 
@@ -49,7 +59,7 @@ const loadAuditoriums = async (corpusType) => {
     
     <ControlPanel 
       :isLoading="isLoading"
-      @action="loadData"
+      @action="handleAction"
     />
     
     <BuildingSelector 

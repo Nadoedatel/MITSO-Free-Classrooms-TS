@@ -19,7 +19,8 @@ import AppButton from '../UI/AppButton.vue';
     actions: {
       type: Array,
       default: () => [
-        { label: 'Инициализация аудиторий', method: 'init' }
+        { label: 'Инициализация аудиторий', method: 'init' }, 
+        { label: 'Очистка Local Storage', method: 'clear' }
       ]
     }
   })
