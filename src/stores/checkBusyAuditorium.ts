@@ -9,8 +9,6 @@ import { ref } from "vue";
 import { TIME_SLOTS } from "@/constants/timeSlots";
 import { CORPUS_CONFIG } from "@/constants/corpusConfig";
 import type { Lesson } from "@/types/lesson";
-import type { Faculty } from "@/types/faculty";
-import type { Form } from "@/types/form";
 import type { Course } from "@/types/course";
 import type { Group } from "@/types/group";
 import type { CompleteStructureItem } from "@/types/structure"
