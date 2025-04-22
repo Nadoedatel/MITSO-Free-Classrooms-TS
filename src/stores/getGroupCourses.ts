@@ -77,8 +77,7 @@ export const useGroupOnCourse = defineStore("groupOnCourse", () => {
       }
 
       const data: Group[] = await response.json();
-      console.log("%c Курсы успешно загруженые:", 'background: red', data);
-
+      console.log("%c Группы успешно загруженые:", 'background: red', data);
       setGroupInArr(data);
     } catch (error) {
       console.error("Ошибка при загрузке групп:", error);

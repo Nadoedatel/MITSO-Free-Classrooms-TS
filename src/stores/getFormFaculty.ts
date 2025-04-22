@@ -51,9 +51,7 @@ export const useFormFaculty = defineStore("formFaculty", () => {
       const data: Form[] = await response.json();
       console.log("%c Формы обучения:", 'background: red', data);
 
-      if (arrForm.value.length === 0) {
-        deliveryToArr(data);
-      }
+      deliveryToArr(data);
     } catch (error) {
       console.error("Ошибка в useFormFaculty:", error);
     }
