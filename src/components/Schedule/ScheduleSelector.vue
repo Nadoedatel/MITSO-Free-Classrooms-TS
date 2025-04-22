@@ -4,8 +4,11 @@
       <SelectedFaculty @select-faculty="faculty"></SelectedFaculty>
       <SelectedForm @select-form="form"></SelectedForm>
       <SelectedCourse @select-course="course"></SelectedCourse>
-      <SelectedGroup></SelectedGroup>
-      <AppButton @click="$emit('select-schedule')"> Добавить </AppButton>
+      <SelectedGroup @select-group="group"></SelectedGroup>
+      <AppButton @click="saveUserGroup">Добавить</AppButton>
+    </div>
+    <div>
+      <ScheduleList></ScheduleList>
     </div>
   </div>
 </template>
@@ -14,25 +17,28 @@
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import AppButton from "../UI/AppButton.vue";
-import SelectedFaculty from "./SelectedFaculty.vue";
-import SelectedForm from "./SelectedForm.vue";
-import SelectedCourse from "./SelectedCourse.vue";
-import SelectedGroup from "./SelectedGroup.vue";
+import SelectedFaculty from "./SelectedItem/SelectedFaculty.vue";
+import SelectedForm from "./SelectedItem/SelectedForm.vue";
+import SelectedCourse from "./SelectedItem/SelectedCourse.vue";
+import SelectedGroup from "./SelectedItem/SelectedGroup.vue";
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useGroupOnCourse } from "@/stores/getGroupCourses";
+import { useScheduleGroup } from "@/stores/getScheduleGroup";
 
 
 const getForm = useFormFaculty()
 const getCorse = useCoursesFaculty()
 const getGroup = useGroupOnCourse()
+const getSchedule = useScheduleGroup()
 const nowFaculty = ref()
-
 
 const formFacultyStore = useCoursesFaculty();
 const formGroupStore = useGroupOnCourse()
+const formScheduleStore = useScheduleGroup()
 const { nowForm } = storeToRefs(formFacultyStore);
 const { nowCourse } = storeToRefs(formGroupStore)
+const { nowGroup } = storeToRefs(formScheduleStore)
 
 
 const loadForm = async (faculty) => {
@@ -69,6 +75,16 @@ const loadGroup = async (faculty) => {
   }
 }
 
+const loadSchedule = async (faculty) => {
+  try {
+    await getSchedule.getScheduleGroup(faculty)
+  } catch (err) {
+    console.error('Ошибка загрузки форм:', err);
+  } finally {
+    // isLoading.value = false;
+  }
+}
+
 function faculty(method) {
   nowFaculty.value = method
   console.log(method, nowFaculty.value)
@@ -85,5 +101,16 @@ function course(method) {
   nowCourse.value = method
   console.log(method)
   loadGroup(nowFaculty.value)
+}
+
+function group(method) {
+  nowGroup.value = method
+  console.log(method);
+  loadSchedule(nowFaculty.value)
+}
+
+function saveUserGroup() {
+  console.log("Сработало");
+  localStorage.setItem("userGroup", )
 }
 </script>
