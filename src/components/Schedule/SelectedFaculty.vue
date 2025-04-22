@@ -7,7 +7,6 @@
             {{ faculty.name }}
         </option>
     </select>
-
 </template>
 
 <script setup>

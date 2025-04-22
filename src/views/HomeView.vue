@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { useCheckBusyAuditorium } from "@/stores/checkBusyAuditorium";
 import { useAuditorium } from "@/stores/objectAuditorium";
 import AuditoriumList from '@/components/Auditoriums/AuditoriumList.vue';
-import PreLoader from '@/components/UI/preLoader.vue';
+import PreLoader from '@/components/UI/PreLoader.vue';
 import ControlPanel from '@/components/Auditoriums/ControlPanel.vue';
 import BuildingSelector from '@/components/Auditoriums/BuildingSelector.vue';
 import { useClearLocalStorage } from '@/stores/clearLocalStorage';
