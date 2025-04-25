@@ -1,7 +1,7 @@
 <template>
-    <div v-if="hasData" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 p-4">
+    <div  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 p-4">
       <ScheduleCard
-        v-for="( schedule, auditorium) in arrSchedule"
+        v-for="( schedule, auditorium) in allInfoSchedule"
         :key="auditorium"
         :schedule="schedule"
         :auditorium="auditorium"
@@ -9,9 +9,9 @@
         :time="time"
       />
     </div>
-    <div v-else class="p-6 text-center text-gray-500">
+    <!-- <div v-else class="p-6 text-center text-gray-500">
       Нет данных об аудиториях. Загрузите данные для одного из корпусов.
-    </div>
+    </div> -->
   </template>
   
   <script setup>
@@ -20,13 +20,5 @@ import ScheduleCard from './ScheduleCard.vue';
 import { storeToRefs } from 'pinia';
 
   const formScheduleStore = useScheduleGroup()
-  const { arrSchedule } = storeToRefs(formScheduleStore)
-
-  defineProps({
-    fullSchedule: Object,
-    hasData: {
-      type: Boolean,
-      default: false
-    }
-  })
+  const { allInfoSchedule } = storeToRefs(formScheduleStore)
   </script>

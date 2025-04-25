@@ -1,7 +1,7 @@
 <template>
     <div class="border rounded-lg p-6 bg-white shadow-sm">
       <h3 class="text-xl font-bold mb-4">Аудитория {{ auditorium }}</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-3">
         <div 
           v-for="(lesson, time) in schedule" 
           :key="time" 

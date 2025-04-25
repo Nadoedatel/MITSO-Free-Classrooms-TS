@@ -25,6 +25,7 @@ import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useGroupOnCourse } from "@/stores/getGroupCourses";
 import { useScheduleGroup } from "@/stores/getScheduleGroup";
+import { useAuditorium } from "@/stores/objectAuditorium";
 
 
 const getForm = useFormFaculty()
@@ -33,6 +34,7 @@ const getGroup = useGroupOnCourse()
 const getSchedule = useScheduleGroup()
 const nowFaculty = ref()
 
+const auditoriumStore = useAuditorium();
 const formFacultyStore = useCoursesFaculty();
 const formGroupStore = useGroupOnCourse()
 const formScheduleStore = useScheduleGroup()
@@ -75,9 +77,9 @@ const loadGroup = async (faculty) => {
   }
 }
 
-const loadSchedule = async (faculty) => {
+const loadSchedule = async (faculty, isSchedule) => {
   try {
-    await getSchedule.getScheduleGroup(faculty)
+    await getSchedule.getScheduleGroup(faculty, isSchedule)
   } catch (err) {
     console.error('Ошибка загрузки форм:', err);
   } finally {
@@ -106,11 +108,12 @@ function course(method) {
 function group(method) {
   nowGroup.value = method
   console.log(method);
-  loadSchedule(nowFaculty.value)
+  loadSchedule(nowFaculty.value, true)
 }
 
 function saveUserGroup() {
   console.log("Сработало");
-  localStorage.setItem("userGroup", )
+  const arrUserSchedule = ref([nowFaculty.value.name, nowForm.value.name, nowCourse.value.name, nowGroup.value.name])
+  localStorage.setItem("userGroup", arrUserSchedule.value)
 }
 </script>

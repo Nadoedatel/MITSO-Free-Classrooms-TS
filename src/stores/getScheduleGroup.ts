@@ -1,6 +1,7 @@
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import { useGroupOnCourse } from "@/stores/getGroupCourses";
+import type { AllLesson } from "@/types/allLesson";
 import type { Course } from "@/types/course";
 import type { Faculty } from "@/types/faculty";
 import type { Form } from "@/types/form";
@@ -16,6 +17,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
 
   const nowGroup = ref<Group | null>(null);
   const arrSchedule = ref<Lesson[]>([]);
+  const allInfoSchedule = ref<AllLesson[]>([])
 
   const { arrCourses, nowForm } = storeToRefs(formCourseStore);
   const { arrForm } = storeToRefs(formFacultyStore);
@@ -70,7 +72,24 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
     console.log("Загружено занятий:", newSchedule.length);
   }
 
-  async function getScheduleGroup(faculty: Faculty): Promise<void> {
+  function allScheduleCurrentGroup(data: Record<string, Record<string, Lesson[]>>):void {
+      const newSchedule: Lesson[] = [];
+    
+      Object.values(data).forEach((week) => {
+        Object.entries(week).forEach(([dateKey, dayLessons]) => {
+          dayLessons.forEach((lesson) => {
+            if (lesson.subject?.trim()) {
+              newSchedule.push(lesson);
+            }
+          });
+        });
+      });
+    
+      allInfoSchedule.value = newSchedule;
+      console.log("Загружено занятий:", newSchedule.length);
+  }
+
+  async function getScheduleGroup(faculty: Faculty, isScheduleGroup?: boolean): Promise<void> {
     try {
       if (arrForm.value.length === 0) {
         await formFacultyStore.getFormFaculty(faculty);
@@ -120,6 +139,11 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
 
       const data: Lesson = await response.json();
       console.log("%c Расписание успешно загружено:", 'background: gray', data);
+
+      if (isScheduleGroup) {
+        allScheduleCurrentGroup(data)
+        console.log("%c Расписание передаем полностью:", 'background: gray');
+      }
 
       processScheduleData(data);
     } catch (error) {
