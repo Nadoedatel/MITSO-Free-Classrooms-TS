@@ -1,21 +1,30 @@
 <template>
-  <div class="border rounded-lg p-6 bg-white shadow-sm">
-    <h3 class="text-xl font-bold mb-4">Дата {{ date }}</h3>
-    <p>Группа: {{ group_class }}</p>
-    <p>Предмет: {{ subject }}</p>
-    <p>Преподаватель: {{ teacher }}</p>
-    <p>Аудитория: {{ auditorium }}</p>
-    <p>Время: {{ time }}</p>
+  <div v-if="subject" class="border rounded-lg bg-white shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
+    <div class="p-4">
+      <!-- Основная информация -->
+      <p class="font-medium text-gray-800">{{ subject }}</p>
+      <p class="text-sm text-gray-600 mb-3">{{ time }}</p>
+      
+      <!-- Детали -->
+      <div class="space-y-2 border-t pt-3 text-sm">
+        <p v-if="teacher" class="flex items-center text-gray-700">
+          <span class="mr-2">👤</span>
+          {{ teacher }}
+        </p>
+        <p v-if="auditorium" class="flex items-center text-gray-700">
+          <span class="mr-2">🏢</span>
+          Ауд. {{ auditorium }}
+        </p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 defineProps({
   auditorium: String,
-  date: String,
-  group_class: String,
   subject: String,
   teacher: String,
   time: String
-})
+});
 </script>
