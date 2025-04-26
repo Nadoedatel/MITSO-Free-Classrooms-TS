@@ -103,11 +103,8 @@ const groupedSchedule = computed(() => {
   const grouped = {};
   
   filteredLessons.value.forEach(lesson => {
-    // Пропускаем уроки без названия или с пустым названием
-    if (!lesson.subject?.trim()) return;
-    
-    // Пропускаем уроки с пустой аудиторией ("-", " " или null/undefined)
-    if (!lesson.auditorium?.trim() || lesson.auditorium.trim() === '-') return;
+    // Проверяем только название предмета (пустое или "-")
+    if (!lesson.subject?.trim() || lesson.subject.trim() === '-' || lesson.subject.trim() === '2. -' || lesson.subject.trim() === '1. -') return;
     
     const dateKey = lesson.date;
     const cleanSubject = lesson.subject.replace(/^[12]\.\s*/, '').trim();
@@ -124,6 +121,7 @@ const groupedSchedule = computed(() => {
       };
     }
     
+    // Добавляем урок, даже если аудитория или преподаватель пустые
     grouped[dateKey][timeKey].lessons.push(lesson);
   });
   
