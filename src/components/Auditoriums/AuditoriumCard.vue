@@ -8,7 +8,7 @@
           class="border rounded p-3 transition-all hover:shadow-md hover:shadow-blue-400"
           :class="{
             'bg-red-200 border-red-200 hover:shadow-red-400': lesson,
-            'bg-gray-50 border-gray-200': !lesson
+            'bg-gray-200 border-gray-300': !lesson
           }"
         >
           <div class="text-sm font-medium text-gray-500 mb-1">{{ time }}</div>

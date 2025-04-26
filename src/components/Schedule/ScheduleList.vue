@@ -28,7 +28,7 @@
       <div 
         v-for="(lessons, date) in groupedSchedule" 
         :key="date"
-        class="bg-white p-4 rounded-lg shadow"
+        class="bg-white p-4 rounded-lg shadow-sm"
       >
         <h3 class="text-lg font-semibold mb-4 text-gray-800 sticky top-0 bg-white py-2">
           {{ formatDate(date) }}

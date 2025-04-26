@@ -55,7 +55,7 @@ function handleAction(method) {
 
 <template>
   <div class="space-y-6">
-    <PreLoader :isLoading="isLoading" />
+    <!-- <PreLoader :isLoading="isLoading" /> -->
     
     <ControlPanel 
       :isLoading="isLoading"

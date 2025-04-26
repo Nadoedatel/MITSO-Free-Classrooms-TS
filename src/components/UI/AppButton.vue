@@ -5,7 +5,7 @@
       :class="{ 'opacity-50 cursor-not-allowed': disabled }"
       @click="$emit('click')"
     >
-      <slot></slot>
+      <slot>Veronika</slot>
     </button>
   </template>
   
