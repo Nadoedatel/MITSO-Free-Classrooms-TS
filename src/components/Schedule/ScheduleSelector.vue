@@ -7,9 +7,6 @@
       <SelectedGroup @select-group="group"></SelectedGroup>
       <AppButton @click="saveUserGroup">Добавить</AppButton>
     </div>
-    <div>
-      <ScheduleList></ScheduleList>
-    </div>
   </div>
 </template>
 
@@ -25,7 +22,6 @@ import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useGroupOnCourse } from "@/stores/getGroupCourses";
 import { useScheduleGroup } from "@/stores/getScheduleGroup";
-import { useAuditorium } from "@/stores/objectAuditorium";
 
 
 const getForm = useFormFaculty()
@@ -34,7 +30,6 @@ const getGroup = useGroupOnCourse()
 const getSchedule = useScheduleGroup()
 const nowFaculty = ref()
 
-const auditoriumStore = useAuditorium();
 const formFacultyStore = useCoursesFaculty();
 const formGroupStore = useGroupOnCourse()
 const formScheduleStore = useScheduleGroup()

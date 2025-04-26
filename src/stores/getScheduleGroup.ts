@@ -17,7 +17,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
 
   const nowGroup = ref<Group | null>(null);
   const arrSchedule = ref<Lesson[]>([]);
-  const allInfoSchedule = ref<AllLesson[]>([])
+  const allInfoSchedule = ref<AllLesson>([])
 
   const { arrCourses, nowForm } = storeToRefs(formCourseStore);
   const { arrForm } = storeToRefs(formFacultyStore);
@@ -86,7 +86,7 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
       });
     
       allInfoSchedule.value = newSchedule;
-      console.log("Загружено занятий:", newSchedule.length);
+      console.log("Загружено занятий:", newSchedule.length, allInfoSchedule.value);
   }
 
   async function getScheduleGroup(faculty: Faculty, isScheduleGroup?: boolean): Promise<void> {
@@ -158,5 +158,6 @@ export const useScheduleGroup = defineStore("scheduleGroup", () => {
     nowForm,
     nowCourse,
     nowGroup,
+    allInfoSchedule,
   };
 });
