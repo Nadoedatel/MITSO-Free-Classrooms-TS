@@ -25,24 +25,44 @@
 
     <!-- Расписание по дням -->
     <div v-if="filteredLessons.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+  <div 
+    v-for="(dayLessons, date) in groupedSchedule" 
+    :key="date"
+    class="bg-white p-4 rounded-lg shadow-sm"
+  >
+    <h3 class="text-lg font-semibold mb-4 text-gray-800 sticky top-0 bg-white py-2">
+      {{ formatDate(date) }}
+    </h3>
+    
+    <div class="space-y-3">
       <div 
-        v-for="(lessons, date) in groupedSchedule" 
-        :key="date"
-        class="bg-white p-4 rounded-lg shadow-sm"
+        v-for="(timeSlot, timeKey) in dayLessons" 
+        :key="timeKey"
+        class="border rounded-lg bg-fuchsia-200 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md"
       >
-        <h3 class="text-lg font-semibold mb-4 text-gray-800 sticky top-0 bg-white py-2">
-          {{ formatDate(date) }}
-        </h3>
-        
-        <div class="space-y-3">
-          <ScheduleCard
-            v-for="(lesson, index) in lessons"
-            :key="index"
-            v-bind="lesson"
-          />
+        <div class="p-4">
+          <!-- Общая информация о паре -->
+          <p class="font-medium text-gray-800">{{ timeSlot.subject }}</p>
+          <p class="text-sm text-gray-600 mb-3">{{ timeSlot.time }}</p>
+          
+          <!-- Список подгрупп -->
+          <div class="space-y-2 border-t pt-3 text-sm">
+            <div v-for="lesson in timeSlot.lessons" :key="lesson.id">
+              <p v-if="lesson.teacher" class="flex items-center text-gray-700">
+                <span class="mr-2">👤</span>
+                {{ lesson.teacher }}
+              </p>
+              <p v-if="lesson.auditorium?.trim()" class="flex items-center text-gray-700">
+                <span class="mr-2">🏢</span>
+                Ауд. {{ lesson.auditorium }}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  </div>
+</div>
     
     <div v-else class="p-8 text-center text-gray-500 bg-white rounded-lg shadow">
       <CalendarIcon class="w-12 h-12 mx-auto text-gray-300" />
@@ -81,10 +101,32 @@ const filteredLessons = computed(() => {
 // Группировка по дням
 const groupedSchedule = computed(() => {
   const grouped = {};
+  
   filteredLessons.value.forEach(lesson => {
-    if (!grouped[lesson.date]) grouped[lesson.date] = [];
-    grouped[lesson.date].push(lesson);
+    // Пропускаем уроки без названия или с пустым названием
+    if (!lesson.subject?.trim()) return;
+    
+    // Пропускаем уроки с пустой аудиторией ("-", " " или null/undefined)
+    if (!lesson.auditorium?.trim() || lesson.auditorium.trim() === '-') return;
+    
+    const dateKey = lesson.date;
+    const cleanSubject = lesson.subject.replace(/^[12]\.\s*/, '').trim();
+    if (!cleanSubject) return;
+    
+    const timeKey = `${cleanSubject}|${lesson.time}`;
+    
+    if (!grouped[dateKey]) grouped[dateKey] = {};
+    if (!grouped[dateKey][timeKey]) {
+      grouped[dateKey][timeKey] = {
+        subject: cleanSubject,
+        time: lesson.time,
+        lessons: []
+      };
+    }
+    
+    grouped[dateKey][timeKey].lessons.push(lesson);
   });
+  
   return grouped;
 });
 
