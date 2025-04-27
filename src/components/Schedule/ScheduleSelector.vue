@@ -111,4 +111,5 @@ function saveUserGroup() {
   const arrUserSchedule = ref([nowFaculty.value.name, nowForm.value.name, nowCourse.value.name, nowGroup.value.name])
   localStorage.setItem("userGroup", arrUserSchedule.value)
 }
+
 </script>
