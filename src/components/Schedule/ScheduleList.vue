@@ -42,7 +42,7 @@
       >
         <div class="p-4">
           <!-- Общая информация о паре -->
-          <p class="font-medium text-gray-800">{{ timeSlot.subject }}</p>
+          <p class="font-medium text-gray-700">{{ timeSlot.subject }}</p>
           <p class="text-sm text-gray-600 mb-3">{{ timeSlot.time }}</p>
           
           <!-- Список подгрупп -->
