@@ -33,7 +33,7 @@ const nowFaculty = ref();
 const isLoading = ref(false)
 const error = ref(null);
 
-const emit = defineEmits(["update-show-schedule"]);
+const emit = defineEmits(["update-show-schedule", "correct-group"]);
 
 const formFacultyStore = useCoursesFaculty();
 const formGroupStore = useGroupOnCourse();
@@ -128,13 +128,14 @@ function group(method) {
 
 function saveUserGroup() {
   console.log("Сработало");
-  const arrUserSchedule = ref([
-    nowFaculty.value.name,
-    nowForm.value.name,
-    nowCourse.value.name,
-    nowGroup.value.name,
-  ]);
-  localStorage.setItem("userGroup", arrUserSchedule.value);
+  const arrUserSchedule = ref({
+    "faculty": nowFaculty.value.name,
+    "form": nowForm.value.name,
+    "Course": nowCourse.value.name,
+    "Group": nowGroup.value.name,
+});
+  localStorage.setItem("userGroup", JSON.stringify(arrUserSchedule.value));
+  emit("correct-group", nowGroup.value.name)
   emit("update-show-schedule", true);
 }
 </script>
