@@ -1,13 +1,13 @@
 <template>
   <div class="p-4 bg-gray-50 rounded-lg justify-items-center">
     <div
-      class="grid grid-cols-1 gap-4 border rounded-lg p-4 bg-white text-center"
+      class="grid grid-cols-1 gap-4 border rounded-lg p-6 bg-white text-center"
     >
-      <SelectedFaculty @select-faculty="faculty"></SelectedFaculty>
-      <SelectedForm @select-form="form"></SelectedForm>
-      <SelectedCourse @select-course="course"></SelectedCourse>
-      <SelectedGroup @select-group="group"></SelectedGroup>
-      <AppButton @click="saveUserGroup">Добавить</AppButton>
+      <SelectedFaculty @select-faculty="faculty" :disabled="isLoading"></SelectedFaculty>
+      <SelectedForm @select-form="form" :disabled="isLoading"></SelectedForm>
+      <SelectedCourse @select-course="course" :disabled="isLoading"></SelectedCourse>
+      <SelectedGroup @select-group="group" :disabled="isLoading"></SelectedGroup>
+      <AppButton @click="saveUserGroup" :disabled="isLoading">Добавить</AppButton>
     </div>
   </div>
 </template>
@@ -30,6 +30,8 @@ const getCorse = useCoursesFaculty();
 const getGroup = useGroupOnCourse();
 const getSchedule = useScheduleGroup();
 const nowFaculty = ref();
+const isLoading = ref(false)
+const error = ref(null);
 
 const emit = defineEmits(["update-show-schedule"]);
 
@@ -40,47 +42,63 @@ const { nowForm } = storeToRefs(formFacultyStore);
 const { nowCourse } = storeToRefs(formGroupStore);
 const { nowGroup } = storeToRefs(formScheduleStore);
 
+defineProps({
+  isLoading: Boolean,
+})
+
 const loadForm = async (faculty) => {
   try {
-    // isLoading.value = true;
-    // error.value = null;
+    isLoading.value = true;
+    error.value = null;
 
     await getForm.getFormFaculty(faculty);
   } catch (err) {
-    // error.value = err.message;
+    error.value = err.message;
     console.error("Ошибка загрузки форм:", err);
   } finally {
-    // isLoading.value = false;
+    isLoading.value = false;
   }
 };
 
 const loadCourse = async (faculty) => {
   try {
+    isLoading.value = true;
+    error.value = null;
+
     await getCorse.getCourseFaculty(faculty);
   } catch (err) {
+    error.value = err.message;
     console.error("Ошибка загрузки форм:", err);
   } finally {
-    // isLoading.value = false;
+    isLoading.value = false;
   }
 };
 
 const loadGroup = async (faculty) => {
   try {
+    isLoading.value = true;
+    error.value = null;
+
     await getGroup.getGroupCourse(faculty);
   } catch (err) {
+    error.value = err.message;
     console.error("Ошибка загрузки форм:", err);
   } finally {
-    // isLoading.value = false;
+    isLoading.value = false;
   }
 };
 
 const loadSchedule = async (faculty, isSchedule) => {
   try {
+    isLoading.value = true;
+    error.value = null;
+
     await getSchedule.getScheduleGroup(faculty, isSchedule);
   } catch (err) {
+    error.value = err.message;
     console.error("Ошибка загрузки форм:", err);
   } finally {
-    // isLoading.value = false;
+    isLoading.value = false;
   }
 };
 

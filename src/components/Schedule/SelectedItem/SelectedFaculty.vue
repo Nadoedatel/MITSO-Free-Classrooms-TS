@@ -1,12 +1,18 @@
 <template>
-    <select v-model="selectedFaculty" @change="$emit('select-faculty', selectedFaculty)"
-        class="border rounded-lg p-4 bg-white text-center">
-        <option selected disabled hidden :value="null">Факультет</option>
-        <option v-for="faculty in arrFaculty" :key="faculty.name" :value="faculty"
-            class="border rounded-lg p-4 bg-white text-center">
-            {{ faculty.name }}
-        </option>
-    </select>
+  <select
+    v-model="selectedFaculty"
+    @change="$emit('select-faculty', selectedFaculty)"
+    class="border rounded-lg p-4 bg-white text-center w-64"
+  >
+    <option selected disabled hidden :value="null">Факультет</option>
+    <option
+      v-for="faculty in arrFaculty"
+      :key="faculty.name"
+      :value="faculty"
+    >
+      {{ faculty.name }}
+    </option>
+  </select>
 </template>
 
 <script setup>

@@ -1,12 +1,18 @@
 <template>
-    <select v-model="selectedGroup" @change="$emit('select-group', selectedGroup)"
-        class="border rounded-lg p-4 bg-white text-center">
-        <option selected disabled hidden :value="null">Группа</option>
-        <option v-for="group in arrGroup" :key="group.name" :value="group"
-            class="border rounded-lg p-4 bg-white text-center">
-            {{ group.name }}
-        </option>
-    </select>
+  <select
+    v-model="selectedGroup"
+    @change="$emit('select-group', selectedGroup)"
+    class="border rounded-lg p-4 bg-white text-center"
+  >
+    <option selected disabled hidden :value="null">Группа</option>
+    <option
+      v-for="group in arrGroup"
+      :key="group.name"
+      :value="group"
+    >
+      {{ group.name }}
+    </option>
+  </select>
 </template>
 
 <script setup>

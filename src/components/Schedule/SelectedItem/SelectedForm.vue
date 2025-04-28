@@ -1,12 +1,18 @@
 <template>
-    <select v-model="selectedForm" @change="$emit('select-form', selectedForm)"
-        class="border rounded-lg p-4 bg-white text-center">
-        <option selected disabled hidden :value="null">Форма обучения</option>
-        <option v-for="form in arrForm" :key="form.name" :value="form"
-            class="border rounded-lg p-4 bg-white text-center">
-            {{ form.name }}
-        </option>
-    </select>
+  <select
+    v-model="selectedForm"
+    @change="$emit('select-form', selectedForm)"
+    class="border rounded-lg p-4 bg-white text-center"
+  >
+    <option selected disabled hidden :value="null">Форма обучения</option>
+    <option
+      v-for="form in arrForm"
+      :key="form.name"
+      :value="form"
+    >
+      {{ form.name }}
+    </option>
+  </select>
 </template>
 
 <script setup>
