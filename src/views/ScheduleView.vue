@@ -2,10 +2,10 @@
 import GroupData from "@/components/Schedule/GroupData.vue";
 import ScheduleList from "@/components/Schedule/ScheduleList.vue";
 import ScheduleSelector from "@/components/Schedule/ScheduleSelector.vue";
-import { useScheduleGroup } from "@/stores/getScheduleGroup";
+import { useScheduleCorrectGroup } from "@/stores/getScheduleCorrectGroup";
 import { ref } from "vue";
 
-const scheduleGroup = useScheduleGroup();
+const scheduleGroup = useScheduleCorrectGroup();
 const showSchedule = ref(false);
 const correctGroup = ref("")
 </script>
@@ -13,6 +13,7 @@ const correctGroup = ref("")
 <template>
   <GroupData
     :correctGroup="correctGroup"
+    @update-show-schedule="(value) => showSchedule = value"
   ></GroupData>
   <ScheduleSelector
     @correct-group="(value) => correctGroup = value"
