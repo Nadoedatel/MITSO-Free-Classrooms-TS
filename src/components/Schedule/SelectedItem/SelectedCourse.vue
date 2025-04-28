@@ -3,6 +3,8 @@
     v-model="selectedCourse"
     @change="$emit('select-course', selectedCourse)"
     class="border rounded-lg p-4 bg-white text-center"
+    :disabled="disabled"
+    :class="{ 'bg-gray-400 opacity-50 cursor-not-allowed': disabled }"
   >
     <option selected disabled hidden :value="null">Курсы</option>
     <option
@@ -24,6 +26,8 @@ const selectedCourse = ref(null);
 
 const formFacultyStore = useCoursesFaculty();
 const { arrCourses } = storeToRefs(formFacultyStore);
-
+defineProps({
+    disabled: Boolean
+  })
 defineEmits(["select-course"]);
 </script>

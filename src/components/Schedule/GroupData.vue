@@ -25,6 +25,11 @@ function extractGroupName(fullGroup) {
     return groupPart;
 }
 
+const emit = defineEmits(["update-show-schedule"]);
+
+function changeHasUserGroup() {
+    emit("update-show-schedule", false);
+}
 onMounted(() => {
     const userGroup = localStorage.getItem("userGroup");
     groupName.value = extractGroupName(userGroup);

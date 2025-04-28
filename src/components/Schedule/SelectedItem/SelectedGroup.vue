@@ -3,6 +3,8 @@
     v-model="selectedGroup"
     @change="$emit('select-group', selectedGroup)"
     class="border rounded-lg p-4 bg-white text-center"
+    :disabled="disabled"
+    :class="{ 'opacity-50 cursor-not-allowed': disabled }"
   >
     <option selected disabled hidden :value="null">Группа</option>
     <option
@@ -24,6 +26,8 @@ const selectedGroup = ref(null);
 
 const formCourseStore = useGroupOnCourse();
 const { arrGroup } = storeToRefs(formCourseStore);
-
+defineProps({
+    disabled: Boolean
+  })
 defineEmits(["select-group"]);
 </script>
