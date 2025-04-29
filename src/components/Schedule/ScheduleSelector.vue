@@ -1,13 +1,29 @@
 <template>
-  <div class="p-4 bg-gray-50 rounded-lg justify-items-center dark:bg-[#242424] dark:text-white">
+  <div
+    class="p-4 bg-gray-50 rounded-lg justify-items-center dark:bg-[#242424] dark:text-white"
+  >
     <div
       class="grid grid-cols-1 gap-4 border rounded-lg p-6 bg-white text-center dark:bg-[#2f2f2f] dark:text-white"
     >
-      <SelectedFaculty @select-faculty="faculty" :disabled="isLoading"></SelectedFaculty>
+      <SelectedFaculty
+        @select-faculty="faculty"
+        :disabled="isLoading"
+      ></SelectedFaculty>
       <SelectedForm @select-form="form" :disabled="isLoading"></SelectedForm>
-      <SelectedCourse @select-course="course" :disabled="isLoading"></SelectedCourse>
-      <SelectedGroup @select-group="group" :disabled="isLoading"></SelectedGroup>
-      <AppButton class="dark:bg-[#242424] dark:text-white" @click="saveUserGroup" :disabled="isLoading">Добавить</AppButton>
+      <SelectedCourse
+        @select-course="course"
+        :disabled="isLoading"
+      ></SelectedCourse>
+      <SelectedGroup
+        @select-group="group"
+        :disabled="isLoading"
+      ></SelectedGroup>
+      <AppButton
+        class="dark:bg-[#242424] dark:text-white"
+        @click="saveUserGroup"
+        :disabled="isLoading"
+        >Добавить</AppButton
+      >
     </div>
   </div>
 </template>
@@ -24,27 +40,28 @@ import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useGroupOnCourse } from "@/stores/getGroupCourses";
 import { useScheduleGroup } from "@/stores/getScheduleGroup";
+import { useScheduleCorrectGroup } from "@/stores/getScheduleCorrectGroup";
 
 const getForm = useFormFaculty();
 const getCorse = useCoursesFaculty();
 const getGroup = useGroupOnCourse();
-const getSchedule = useScheduleGroup();
+const getSchedule = useScheduleCorrectGroup();
 const nowFaculty = ref();
-const isLoading = ref(false)
+const isLoading = ref(false);
 const error = ref(null);
 
 const emit = defineEmits(["update-show-schedule", "correct-group"]);
 
 const formFacultyStore = useCoursesFaculty();
 const formGroupStore = useGroupOnCourse();
-const formScheduleStore = useScheduleGroup();
+
 const { nowForm } = storeToRefs(formFacultyStore);
 const { nowCourse } = storeToRefs(formGroupStore);
-const { nowGroup } = storeToRefs(formScheduleStore);
+const { correctGroup, correctCourse, correctForm } = storeToRefs(getSchedule);
 
 defineProps({
   isLoading: Boolean,
-})
+});
 
 const loadForm = async (faculty) => {
   try {
@@ -93,7 +110,7 @@ const loadSchedule = async (faculty, isSchedule) => {
     isLoading.value = true;
     error.value = null;
 
-    await getSchedule.getScheduleGroup(faculty, isSchedule);
+    await getSchedule.getScheduleCorrectGroup(faculty, isSchedule);
   } catch (err) {
     error.value = err.message;
     console.error("Ошибка загрузки форм:", err);
@@ -110,18 +127,20 @@ function faculty(method) {
 
 function form(method) {
   nowForm.value = method;
+  correctForm.value = method;
   console.log(method);
   loadCourse(nowFaculty.value);
 }
 
 function course(method) {
   nowCourse.value = method;
+  correctCourse.value = method;
   console.log(method);
   loadGroup(nowFaculty.value);
 }
 
 function group(method) {
-  nowGroup.value = method;
+  correctGroup.value = method;
   console.log(method);
   loadSchedule(nowFaculty.value, true);
 }
@@ -129,13 +148,13 @@ function group(method) {
 function saveUserGroup() {
   console.log("Сработало");
   const arrUserSchedule = ref({
-    "faculty": nowFaculty.value.name,
-    "form": nowForm.value.name,
-    "Course": nowCourse.value.name,
-    "Group": nowGroup.value.name,
-});
+    faculty: nowFaculty.value.name,
+    form: nowForm.value.name,
+    Course: nowCourse.value.name,
+    Group: correctGroup.value.name,
+  });
   localStorage.setItem("userGroup", JSON.stringify(arrUserSchedule.value));
-  emit("correct-group", nowGroup.value.name)
+  emit("correct-group", correctGroup.value.name);
   emit("update-show-schedule", true);
 }
 </script>
