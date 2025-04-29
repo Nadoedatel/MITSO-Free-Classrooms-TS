@@ -19,7 +19,6 @@
         :disabled="isLoading"
       ></SelectedGroup>
       <AppButton
-        class="dark:bg-[#242424] dark:text-white"
         @click="saveUserGroup"
         :disabled="isLoading"
         >Добавить</AppButton

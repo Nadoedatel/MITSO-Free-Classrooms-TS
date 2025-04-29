@@ -62,7 +62,7 @@ function handleAction(method) {
       :isLoading="isLoading"
       @action="handleAction"
     />
-    
+
     <BuildingSelector 
       class="dark:bg-[#242424] dark:text-white"
       :isLoading="isLoading"

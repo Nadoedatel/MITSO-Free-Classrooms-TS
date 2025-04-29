@@ -4,16 +4,18 @@
         v-for="(action, index) in actions"
         :key="index"
         @click="$emit('action', action.method)"
-        class="dark:bg-[#2f2f2f] dark:text-white"
         :disabled="isLoading"
       >
         {{ action.label }}
       </AppButton>
+      <AppInput></AppInput>
+
     </div>
   </template>
   
   <script setup>
 import AppButton from '../UI/AppButton.vue';
+import AppInput from '../UI/AppInput.vue';
 
   defineProps({
     isLoading: Boolean,

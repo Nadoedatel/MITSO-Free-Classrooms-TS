@@ -8,7 +8,6 @@
         <h3 class="font-medium mb-2">{{ building.label }}</h3>
         <AppButton
           @click="$emit('select-building', building.type)"
-          class="dark:bg-[#2f2f2f] dark:text-white"
           :disabled="isLoading"
         >
           Получить аудитории
