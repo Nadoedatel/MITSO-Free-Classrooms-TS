@@ -1,5 +1,5 @@
 <template>
-  <div v-if="subject" class="border rounded-lg bg-fuchsia-200 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
+  <div v-if="subject" class="border rounded-lg  bg-fuchsia-200 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md">
     <div class="p-4">
       <!-- Основная информация -->
       <p class="font-medium text-gray-800">{{ subject }}</p>

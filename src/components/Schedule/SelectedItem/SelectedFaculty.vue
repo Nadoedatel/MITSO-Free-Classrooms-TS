@@ -2,7 +2,7 @@
   <select
     v-model="selectedFaculty"
     @change="$emit('select-faculty', selectedFaculty)"
-    class="border rounded-lg p-4 bg-white text-center w-64"
+    class="border rounded-lg p-4 bg-white text-center w-64 dark:bg-[#242424] dark:text-white"
     :disabled="disabled"
     :class="{ 'opacity-50 cursor-not-allowed': disabled }"
   >

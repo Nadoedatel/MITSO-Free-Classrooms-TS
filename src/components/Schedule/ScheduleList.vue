@@ -1,24 +1,24 @@
 <template>
-  <div class="space-y-6 p-4">
+  <div class="space-y-6 p-4 dark:bg-[#242424] dark:text-white">
     <!-- Панель управления неделями -->
     <div
-      class="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow"
+      class="flex dark:bg-[#242424] dark:text-white justify-between items-center mb-6 bg-white p-4 rounded-lg shadow"
     >
       <button
         @click="prevWeek"
-        class="flex items-center px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+        class="flex dark:bg-[#2f2f2f] dark:text-white items-center px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
       >
         <ArrowLeftIcon class="w-5 h-5 mr-2" />
         Предыдущая
       </button>
 
-      <h2 class="text-xl font-bold text-gray-800">
+      <h2 class="text-xl dark:bg-[#242424] dark:text-white font-bold text-gray-800">
         {{ weekRange }}
       </h2>
 
       <button
         @click="nextWeek"
-        class="flex items-center px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+        class="flex dark:bg-[#2f2f2f] dark:text-white items-center px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
       >
         Следующая
         <ArrowRightIcon class="w-5 h-5 ml-2" />
@@ -28,15 +28,15 @@
     <!-- Расписание по дням -->
     <div
       v-if="hasData"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4"
+      class="grid dark:bg-[#242424] dark:text-white grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4"
     >
       <div
         v-for="(dayLessons, date) in groupedSchedule"
         :key="date"
-        class="bg-white p-4 rounded-lg shadow-sm"
+        class="bg-white dark:bg-[#2f2f2f] dark:text-white p-4 rounded-lg shadow-sm"
       >
         <h3
-          class="text-lg font-semibold mb-4 text-gray-800 sticky top-0 bg-white py-2"
+          class="text-lg dark:bg-[#2f2f2f] dark:text-white font-semibold mb-4 text-gray-800 sticky top-0 bg-white py-2"
         >
           {{ formatDate(date) }}
         </h3>
@@ -45,26 +45,26 @@
           <div
             v-for="(timeSlot, timeKey) in dayLessons"
             :key="timeKey"
-            class="border rounded-lg bg-fuchsia-200 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md"
+            class="border dark:bg-gradient-to-b from-gray-900 to-[#2f2f2f] dark:text-white rounded-lg bg-fuchsia-200 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md"
           >
             <div class="p-4">
               <!-- Общая информация о паре -->
-              <p class="font-medium text-gray-700">{{ timeSlot.subject }}</p>
-              <p class="text-sm text-gray-600 mb-3">{{ timeSlot.time }}</p>
+              <p class="font-medium dark:text-white text-gray-700">{{ timeSlot.subject }}</p>
+              <p class="text-sm dark:text-white text-gray-600 mb-3">{{ timeSlot.time }}</p>
 
               <!-- Список подгрупп -->
-              <div class="space-y-2 border-t pt-3 text-sm">
+              <div class="space-y-2  border-t pt-3 text-sm">
                 <div v-for="lesson in timeSlot.lessons" :key="lesson.id">
                   <p
                     v-if="lesson.teacher"
-                    class="flex items-center text-gray-700"
+                    class="flex dark:text-white items-center text-gray-700"
                   >
                     <span class="mr-2">👤</span>
                     {{ lesson.teacher }}
                   </p>
                   <p
                     v-if="lesson.auditorium?.trim()"
-                    class="flex items-center text-gray-700"
+                    class="flex items-center  dark:text-white text-gray-700"
                   >
                     <span class="mr-2">🏢</span>
                     Ауд. {{ lesson.auditorium }}
@@ -79,9 +79,9 @@
 
     <div
       v-else
-      class="p-8 text-center text-gray-500 bg-white rounded-lg shadow"
+      class="p-8 text-center dark:bg-[#242424] dark:text-white text-gray-500 bg-white rounded-lg shadow"
     >
-      <CalendarIcon class="w-12 h-12 mx-auto text-gray-300" />
+      <CalendarIcon class="w-12 dark:bg-[#242424] dark:text-white h-12 mx-auto text-gray-300" />
       <p class="mt-4 text-lg">На этой неделе занятий нет</p>
     </div>
   </div>

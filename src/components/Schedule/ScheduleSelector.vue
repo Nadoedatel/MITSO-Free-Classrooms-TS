@@ -1,13 +1,13 @@
 <template>
-  <div class="p-4 bg-gray-50 rounded-lg justify-items-center">
+  <div class="p-4 bg-gray-50 rounded-lg justify-items-center dark:bg-[#242424] dark:text-white">
     <div
-      class="grid grid-cols-1 gap-4 border rounded-lg p-6 bg-white text-center"
+      class="grid grid-cols-1 gap-4 border rounded-lg p-6 bg-white text-center dark:bg-[#2f2f2f] dark:text-white"
     >
       <SelectedFaculty @select-faculty="faculty" :disabled="isLoading"></SelectedFaculty>
       <SelectedForm @select-form="form" :disabled="isLoading"></SelectedForm>
       <SelectedCourse @select-course="course" :disabled="isLoading"></SelectedCourse>
       <SelectedGroup @select-group="group" :disabled="isLoading"></SelectedGroup>
-      <AppButton @click="saveUserGroup" :disabled="isLoading">Добавить</AppButton>
+      <AppButton class="dark:bg-[#242424] dark:text-white" @click="saveUserGroup" :disabled="isLoading">Добавить</AppButton>
     </div>
   </div>
 </template>

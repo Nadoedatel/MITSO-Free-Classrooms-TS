@@ -1,9 +1,10 @@
 <template>
-    <div class="flex flex-wrap gap-3 p-4 bg-gray-50 rounded-lg">
+    <div class="flex flex-wrap gap-3  p-4 bg-gray-50 rounded-lg">
       <AppButton
         v-for="(action, index) in actions"
         :key="index"
         @click="$emit('action', action.method)"
+        class="dark:bg-[#2f2f2f] dark:text-white"
         :disabled="isLoading"
       >
         {{ action.label }}

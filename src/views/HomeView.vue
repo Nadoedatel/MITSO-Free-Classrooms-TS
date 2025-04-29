@@ -54,20 +54,23 @@ function handleAction(method) {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <!-- <PreLoader :isLoading="isLoading" /> -->
+  <div class="space-y-6 dark:bg-[#2f2f2f] dark:text-white">
+    <!-- <PreLoader class="dark:bg-[#242424] dark:text-white" :isLoading="isLoading" /> -->
     
     <ControlPanel 
+      class="dark:bg-[#242424] dark:text-white"
       :isLoading="isLoading"
       @action="handleAction"
     />
     
     <BuildingSelector 
+      class="dark:bg-[#242424] dark:text-white"
       :isLoading="isLoading"
       @select-building="loadAuditoriums"
     />
     
     <AuditoriumList 
+    class="dark:bg-[#242424] dark:text-white"
       :fullSchedule="auditoriumStore.fullSchedule"
       :hasData="Object.keys(auditoriumStore.fullSchedule).length > 0"
     />
