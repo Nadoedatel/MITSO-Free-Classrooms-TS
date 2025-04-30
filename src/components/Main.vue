@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
 import AppButton from "./UI/AppButton.vue";
 import SwitchTheme from "./UI/SwitchTheme.vue";
