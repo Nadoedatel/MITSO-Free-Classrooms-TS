@@ -8,14 +8,12 @@
       >
         {{ action.label }}
       </AppButton>
-      <AppInput></AppInput>
 
     </div>
   </template>
   
   <script setup>
 import AppButton from '../UI/AppButton.vue';
-import AppInput from '../UI/AppInput.vue';
 
   defineProps({
     isLoading: Boolean,
