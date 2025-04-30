@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import Header from './components/Header.vue';
+import Header from './components/Main.vue';
 
 const bgColor = ref('dark:bg-[#2f2f2f]');
 const textColor = ref('text-black dark:text-white');
