@@ -1,19 +1,28 @@
-<script setup>
+<script setup lang="ts">
 import AppButton from "../UI/AppButton.vue";
 
-defineProps({
-  isLoading: Boolean,
-  buildings: {
-    type: Array,
-    default: () => [
-      { type: "auditoriumsInNewCorpus", label: "Новый корпус" },
-      { type: "auditoriumsInOldCorpus", label: "Старый корпус" },
-      { type: "auditoriumsInDormitory", label: "Общага" },
-    ],
-  },
+interface Building {
+  type: string;
+  label: string;
+}
+
+interface Props {
+  isLoading?: boolean;
+  buildings?: Building[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isLoading: false,
+  buildings: () => [
+    { type: "auditoriumsInNewCorpus", label: "Новый корпус" },
+    { type: "auditoriumsInOldCorpus", label: "Старый корпус" },
+    { type: "auditoriumsInDormitory", label: "Общага" },
+  ],
 });
 
-defineEmits(["select-building"]);
+const emit = defineEmits<{
+  (e: 'select-building', buildingType: string): void;
+}>();
 </script>
 
 <template>
@@ -25,7 +34,7 @@ defineEmits(["select-building"]);
     >
       <h3 class="font-medium mb-2">{{ building.label }}</h3>
       <AppButton
-        @click="$emit('select-building', building.type)"
+        @click="emit('select-building', building.type)"
         :disabled="isLoading"
       >
         Получить аудитории

@@ -1,18 +1,27 @@
-<script setup>
+<script setup lang="ts">
 import AppButton from "../UI/AppButton.vue";
 
-defineProps({
-  isLoading: Boolean,
-  actions: {
-    type: Array,
-    default: () => [
-      { label: "Инициализация аудиторий", method: "init" },
-      { label: "Очистка Local Storage", method: "clear" },
-    ],
-  },
+interface Action {
+  label: string;
+  method: string;
+}
+
+interface Props {
+  isLoading?: boolean;
+  actions?: Action[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isLoading: false,
+  actions: () => [
+    { label: "Инициализация аудиторий", method: "init" },
+    { label: "Очистка Local Storage", method: "clear" },
+  ],
 });
 
-defineEmits(["action"]);
+const emit = defineEmits<{
+  (e: 'action', method: string): void;
+}>();
 </script>
 
 <template>
@@ -20,7 +29,7 @@ defineEmits(["action"]);
     <AppButton
       v-for="(action, index) in actions"
       :key="index"
-      @click="$emit('action', action.method)"
+      @click="emit('action', action.method)"
       :disabled="isLoading"
     >
       {{ action.label }}

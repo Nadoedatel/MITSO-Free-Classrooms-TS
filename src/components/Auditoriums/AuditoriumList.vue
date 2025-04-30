@@ -1,5 +1,5 @@
-<script setup>
-import AuditoriumCard from "./AuditoriumCard.vue";
+<script setup lang="ts">
+import AuditoriumCard from './AuditoriumCard.vue'; 
 
 defineProps({
   fullSchedule: Object,
