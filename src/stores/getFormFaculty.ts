@@ -14,8 +14,12 @@ export const useFormFaculty = defineStore("formFaculty", () => {
   const nowFaculty = ref<Faculty | null>(null);
   const completeStructure = ref<CompleteStructureItem[]>([]);
 
-  const setForms = (forms: Form[]) => {
-    arrForm.value = forms;
+  const setForms = (forms: Form[]): void => {
+    arrForm.value = [];
+
+    for(const item of forms) {
+      arrForm.value.push(item)
+    }
   };
 
   const setCurrentFaculty = (faculty?: Faculty) => {
