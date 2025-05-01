@@ -3,7 +3,7 @@ import { useFormFaculty } from "@/stores/getFormFaculty";
 import type { Course } from "@/types/course";
 import { computed } from "vue";
 import type { Faculty } from "@/types/faculty";
-import useFacultyForms from "./useFacultyForm";
+import useFacultyForms from "./useFormFaculty";
 
 export default function useCourses() {
   const coursesStore = useCoursesFaculty();
@@ -20,16 +20,16 @@ export default function useCourses() {
         coursesStore.setCurrentForm(formStore.arrForm[0]);
       }
 
-      const params = new URLSearchParams({
-        faculty: faculty.name,
-        form: coursesStore.nowForm?.name || ''
-      });
-
-      const response = await fetch(`/api/schedule/courses?${params}`);
-      const data: Course[] = await response.json();
+      console.log(`Текущая форма обучения: ${coursesStore.nowForm?.name}, Факультет ${faculty.name}`);
       
-      coursesStore.setCourses(data);
-      return data;
+
+      const response = await fetch(
+        `/api/schedule/courses?faculty=${faculty.name}&form=${coursesStore.nowForm?.name}`
+      );
+      const course: Course[] = await response.json();
+      
+      coursesStore.setCourses(course);
+      return course;
     } catch (error) {
       console.error("Course fetch error:", error);
       throw error;
@@ -39,6 +39,6 @@ export default function useCourses() {
   return {
     fetchCourses,
     courses: computed(() => coursesStore.arrCourses),
-    currentForm: computed(() => coursesStore.nowForm)
+    currentForm: computed(() => coursesStore.nowForm),
   };
 }
