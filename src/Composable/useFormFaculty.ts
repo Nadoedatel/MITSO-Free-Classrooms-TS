@@ -7,7 +7,7 @@ export default function useFacultyForms() {
   const formFacultyStore = useFormFaculty();
   
   // Получение форм обучения
-  const fetchFacultyForms = async (faculty?: Faculty): Promise<void> => {
+  const fetchFacultyForms = async (faculty?: Faculty) => {
     try {
       if(faculty) {
         formFacultyStore.setCurrentFaculty(faculty)
@@ -23,6 +23,7 @@ export default function useFacultyForms() {
       const forms: Form[] = await response.json();
       
       formFacultyStore.setForms(forms);
+      return forms;
     } catch (error) {
       console.error("Ошибка загрузки форм обучения:", error);
       throw error;

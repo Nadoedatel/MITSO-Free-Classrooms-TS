@@ -1,7 +1,6 @@
-import { useFormFaculty } from "@/stores/getFormFaculty";
 import type { Course } from "@/types/course";
 import type { Form } from "@/types/form";
-import { defineStore, storeToRefs } from "pinia";
+import { defineStore } from "pinia";
 import { ref } from "vue";
 
 export const useCoursesFaculty = defineStore("coursesFaculty", () => {
@@ -12,7 +11,7 @@ export const useCoursesFaculty = defineStore("coursesFaculty", () => {
     arrCourses.value = courses;
   };
 
-  const setCurrentForm = (form?: Form) => {
+  const setCurrentForm = (form?: Form): void => {
     nowForm.value = form || null;
   };
 
