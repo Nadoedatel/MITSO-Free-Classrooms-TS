@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import AppButton from "../UI/AppButton.vue";
 
+// Явно указываем возможные методы
+type ActionMethod = 'init' | 'clear';
+
 interface Action {
   label: string;
-  method: string;
+  method: ActionMethod; // Теперь только 'init' или 'clear'
 }
 
 interface Props {
@@ -16,11 +19,11 @@ const props = withDefaults(defineProps<Props>(), {
   actions: () => [
     { label: "Инициализация аудиторий", method: "init" },
     { label: "Очистка Local Storage", method: "clear" },
-  ],
+  ] as Action[] // Явное приведение типа
 });
 
 const emit = defineEmits<{
-  (e: 'action', method: string): void;
+  (e: 'action', method: ActionMethod): void; // Строгий тип для метода
 }>();
 </script>
 

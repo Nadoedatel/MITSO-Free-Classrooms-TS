@@ -1,61 +1,71 @@
-<script setup>
-import { ref } from 'vue';
-import { useCheckBusyAuditorium } from "@/stores/checkBusyAuditorium";
-import { useAuditorium } from "@/stores/objectAuditorium";
+<script setup lang="ts">
+import { computed, ref } from 'vue';
 import AuditoriumList from '@/components/Auditoriums/AuditoriumList.vue';
 import PreLoader from '@/components/UI/PreLoader.vue';
 import ControlPanel from '@/components/Auditoriums/ControlPanel.vue';
 import BuildingSelector from '@/components/Auditoriums/BuildingSelector.vue';
+import useAuditoriumBusyCheck from '@/Composable/useBusyAuditorium';
+import { useAuditorium } from '@/stores/objectAuditorium';
 import { useClearLocalStorage } from '@/stores/clearLocalStorage';
 
-const clearLocalStorage = useClearLocalStorage()
-const auditoriumStore = useAuditorium();
-const checkBusyAuditorium = useCheckBusyAuditorium();
+const {
+  loadAllData,
+  loadAllSchedules,
+  initFullSchedule,
+  isLoading: isCheckLoading
+} = useAuditoriumBusyCheck();
 
-const isLoading = ref(false);
-const error = ref(null);
+const {
+  fullSchedule
+} = useAuditorium();
 
-const loadData = async () => {
+const { clearAll } = useClearLocalStorage();
+
+// Состояние компонента
+const error = ref<string | null>(null);
+const isLoading = computed(() => isCheckLoading.value);
+
+// Методы
+const loadData = async (): Promise<void> => {
   try {
-    isLoading.value = true;
     error.value = null;
-
-    await checkBusyAuditorium.loadAllData();
-    await checkBusyAuditorium.loadAllSchedules();
-    await checkBusyAuditorium.initFullSchedule('auditoriumsInNewCorpus');
+    await loadAllData();
+    await loadAllSchedules();
+    await initFullSchedule('auditoriumsInNewCorpus');
   } catch (err) {
-    error.value = err.message;
+    error.value = err instanceof Error ? err.message : 'Неизвестная ошибка';
     console.error('Ошибка загрузки данных:', err);
-  } finally {
-    isLoading.value = false;
   }
 };
 
-const loadAuditoriums = async (corpusType) => {
+const loadAuditoriums = async (corpusType: string): Promise<void> => {
   try {
-    isLoading.value = true;
-    await checkBusyAuditorium.initFullSchedule(corpusType);
+    error.value = null;
+    await initFullSchedule(corpusType);
   } catch (err) {
-    error.value = `Ошибка загрузки аудиторий: ${err.message}`;
-  } finally {
-    isLoading.value = false;
+    error.value = `Ошибка загрузки аудиторий: ${
+      err instanceof Error ? err.message : 'Неизвестная ошибка'
+    }`;
   }
 };
 
-function handleAction(method) {
+const handleAction = (method: 'init' | 'clear'): void => {
   if (method === 'init') {
     loadData();
   } else if (method === 'clear') {
-    clearLocalStorage.clearAll();
-    loadAuditoriums
+    clearAll();
+    loadData(); 
   }
-}
-
+};
 </script>
 
 <template>
   <div class="space-y-6 dark:bg-[#2f2f2f] dark:text-white">
-    <!-- <PreLoader class="dark:bg-[#242424] dark:text-white" :isLoading="isLoading" /> -->
+    <PreLoader 
+      v-if="isLoading"
+      class="dark:bg-[#242424] dark:text-white" 
+      >
+    </PreLoader>
     
     <ControlPanel 
       class="dark:bg-[#242424] dark:text-white"
@@ -70,9 +80,16 @@ function handleAction(method) {
     />
     
     <AuditoriumList 
-    class="dark:bg-[#242424] dark:text-white"
-      :fullSchedule="auditoriumStore.fullSchedule"
-      :hasData="Object.keys(auditoriumStore.fullSchedule).length > 0"
+      class="dark:bg-[#242424] dark:text-white"
+      :fullSchedule="fullSchedule"
+      :hasData="Object.keys(fullSchedule).length > 0"
     />
+
+    <div 
+      v-if="error"
+      class="p-4 text-red-500 bg-red-50 dark:bg-red-900/20"
+    >
+      {{ error }}
+    </div>
   </div>
 </template>
