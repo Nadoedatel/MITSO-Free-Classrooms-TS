@@ -16,7 +16,7 @@ export default function useFacultyForms() {
       }
 
       store.setCurrentFaculty(targetFaculty);
-
+      
       const response = await fetch(`/api/schedule/forms?faculty=${targetFaculty.name}`);
       const forms: Form[] = await response.json();
       
