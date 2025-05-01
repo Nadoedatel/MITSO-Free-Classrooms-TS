@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import Header from './components/Main.vue';
+import Main from './components/Main.vue';
 
 const bgColor = ref('dark:bg-[#2f2f2f]');
 const textColor = ref('text-black dark:text-white');
@@ -8,6 +8,6 @@ const textColor = ref('text-black dark:text-white');
 
 <template>
   <div :class="`min-h-screen ${bgColor} ${textColor}`">
-    <Header></Header>
+    <Main></Main>
   </div>
 </template>
