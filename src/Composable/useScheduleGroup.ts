@@ -3,7 +3,7 @@ import type { Faculty } from "@/types/faculty";
 import type { Lesson } from "@/types/lesson";
 import useGroups from "./useGroupCourse";
 import useCourses from "./useCoursesFaculty";
-import useFacultyForms from "./useFacultyForm";
+import useFacultyForms from "./useFormFaculty";
 import { computed } from "vue";
 
 export default function useSchedule() {

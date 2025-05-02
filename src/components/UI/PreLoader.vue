@@ -1,9 +1,10 @@
 <script setup lang="ts">
-defineProps({
-  isLoading: {
-    type: Boolean,
-    required: true,
-  },
+interface Props {
+  isLoading?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isLoading: false,
 });
 </script>
 

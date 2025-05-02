@@ -1,6 +1,6 @@
 import { computed } from "vue";
 import type { CompleteStructureItem } from "@/types/structure";
-import useFacultyForms from "./useFacultyForm";
+import useFacultyForms from "./useFormFaculty";
 import useCourses from "./useCoursesFaculty";
 import useGroups from "./useGroupCourse";
 import useSchedule from "./useScheduleGroup";
@@ -9,14 +9,22 @@ import type { Lesson } from "@/types/lesson";
 import { CORPUS_CONFIG } from "@/constants/corpusConfig";
 import { TIME_SLOTS } from "@/constants/timeSlots";
 import { useAuditoriumCheckStore } from "@/stores/checkBusyAuditorium";
-
+import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
+import { useScheduleGroup } from "@/stores/getScheduleGroup"; // Добавляем импорт
+import { useUserDate } from "@/stores/getUserDate";
 export default function useAuditoriumBusyCheck() {
   const checkStore = useAuditoriumCheckStore();
-  const { fetchFacultyForms, faculties } = useFacultyForms();
+  const scheduleStore = useScheduleGroup(); // Инициализируем хранилище расписания
+  const userDateStore = useUserDate(); // Инициализируем хранилище даты
+  const currentDate = computed(() => userDateStore.currentDate); // Используем дату из хранилища
+
+  const { fetchFacultyForms, faculties, forms } = useFacultyForms();
   const { fetchCourses } = useCourses();
-  const { fetchGroups } = useGroups();
-  const { fetchSchedule } = useSchedule();
+  const { fetchGroups, setCurrentCourse } = useGroups();
+  const { fetchSchedule, setCurrentGroup } = useSchedule();
   const { initSchedule, addLesson } = useAuditorium();
+
+  const coursesStore = useCoursesFaculty();
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -25,29 +33,41 @@ export default function useAuditoriumBusyCheck() {
       checkStore.isLoading = true;
       const completeData: CompleteStructureItem[] = [];
 
+      if (faculties.value.length === 0) {
+        await fetchFacultyForms();
+      }
+
       for (const faculty of faculties.value) {
         await fetchFacultyForms(faculty);
-        const forms = await fetchFacultyForms(faculty);
 
-        for (const form of forms) {
-          await fetchCourses(faculty);
-          const courses = await fetchCourses(faculty);
+        for (const form of forms.value) {
+          coursesStore.setCurrentForm(form);
+          const coursesList = await fetchCourses(faculty);
           
           const coursesWithGroups = [];
-          for (const course of courses) {
-            const groups = await fetchGroups(faculty);
+          for (const course of coursesList) {
+            setCurrentCourse(course);
+            const groupsList = await fetchGroups(faculty);
+            
             coursesWithGroups.push({
               course,
-              groups
+              groups: groupsList
             });
             await delay(300);
           }
           
-          completeData.push({ faculty, form, courses: coursesWithGroups });
+          completeData.push({ 
+            faculty, 
+            form, 
+            courses: coursesWithGroups 
+          });
         }
       }
       
       checkStore.cache.completeStructure = completeData;
+    } catch (error) {
+      console.error("Ошибка при загрузке данных:", error);
+      throw error;
     } finally {
       checkStore.isLoading = false;
     }
@@ -62,12 +82,27 @@ export default function useAuditoriumBusyCheck() {
         throw new Error("Сначала загрузите данные (loadAllData)");
       }
 
-      for (const { faculty, courses } of checkStore.cache.completeStructure) {
-        for (const { groups } of courses) {
+      // Убедимся, что дата установлена
+      if (!currentDate.value) {
+        userDateStore.getUserCurrentDate();
+      }
+
+      for (const { faculty, form, courses } of checkStore.cache.completeStructure) {
+        coursesStore.setCurrentForm(form);
+
+        for (const { course, groups } of courses) {
+          setCurrentCourse(course);
+
           for (const group of groups) {
-            const schedules = await fetchSchedule(faculty);
-            if (Array.isArray(schedules)) { 
-              allSchedules.push(...schedules);
+            setCurrentGroup(group);
+            await fetchSchedule(faculty);
+            
+            if (Array.isArray(scheduleStore.arrSchedule)) {
+              // Фильтрация по дате из хранилища
+              const filteredLessons = scheduleStore.arrSchedule.filter(
+                (lesson) => lesson?.date === currentDate.value
+              );
+              allSchedules.push(...filteredLessons);
             }
             await delay(300);
           }
@@ -76,15 +111,20 @@ export default function useAuditoriumBusyCheck() {
 
       checkStore.cache.allLessons = allSchedules;
       return allSchedules;
+    } catch (error) {
+      console.error("Ошибка при загрузке расписаний:", error);
+      throw error;
     } finally {
       checkStore.isLoading = false;
     }
   };
 
+
   const initFullSchedule = async (nameCorpus: keyof typeof CORPUS_CONFIG): Promise<void> => {
     try {
       await initSchedule(CORPUS_CONFIG[nameCorpus], TIME_SLOTS);
       
+      // Восстанавливаем сохраненные бронирования
       const savedBookings = localStorage.getItem('auditoriumBookings');
       if (savedBookings) {
         try {
@@ -106,6 +146,7 @@ export default function useAuditoriumBusyCheck() {
         }
       }
 
+      // Бронируем аудитории на основе загруженного расписания
       if (checkStore.cache.allLessons.length) {
         await bookAuditorium();
       }
@@ -123,6 +164,7 @@ export default function useAuditoriumBusyCheck() {
         lessons: Lesson[];
       }>();
 
+      // Группируем занятия по аудиториям и времени
       for (const lesson of checkStore.cache.allLessons) {
         if (!lesson.auditorium || !lesson.time) continue;
         
@@ -137,7 +179,7 @@ export default function useAuditoriumBusyCheck() {
         auditoriumMap.get(key)!.lessons.push(lesson);
       }
 
-      // Сохранение в localStorage
+      // Сохраняем в localStorage
       const bookingData = {
         timestamp: new Date().toISOString(),
         bookings: Array.from(auditoriumMap.values()).map(item => ({
@@ -152,7 +194,7 @@ export default function useAuditoriumBusyCheck() {
 
       localStorage.setItem('auditoriumBookings', JSON.stringify(bookingData));
 
-      // Добавление занятий
+      // Добавляем занятия в расписание
       for (const { auditorium, time, lessons } of auditoriumMap.values()) {
         await addLesson(
           auditorium,

@@ -3,24 +3,22 @@ import type { Group } from "@/types/group";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-export const useGroup = defineStore("groupOnCourse", () => {
-  const arrGroup = ref<Group[]>([]); 
+export const useGroupStore = defineStore("group", () => {
+  const arrGroup = ref<Group[]>([]);
   const nowCourse = ref<Course | null>(null);
 
-
-  const setGroups = (groups: Group[]) => {
+  const setGroups = (groups: Group[]):void => {
     arrGroup.value = groups;
   };
 
-  const setCurrentCourse = (course?: Course) => {
-    nowCourse.value = course || null;
+  const setCurrentCourse = (course: Course): void => {
+    nowCourse.value = course || null 
   };
-
 
   return {
     arrGroup,
     nowCourse,
     setGroups,
-    setCurrentCourse
+    setCurrentCourse,
   };
 });

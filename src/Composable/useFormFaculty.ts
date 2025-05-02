@@ -23,7 +23,6 @@ export default function useFacultyForms() {
       const forms: Form[] = await response.json();
       
       formFacultyStore.setForms(forms);
-      return forms;
     } catch (error) {
       console.error("Ошибка загрузки форм обучения:", error);
       throw error;
