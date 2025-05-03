@@ -76,7 +76,6 @@ const handleError = (err: unknown, defaultMessage: string): void => {
 // Инициализация и наблюдение за датой
 onMounted(async () => {
   userDateStore.getUserCurrentDate();
-  await loadData();
   isInitialLoad.value = false;
 });
 
@@ -101,6 +100,7 @@ watch(
         :disabled="isLoading"
       >
       <ControlPanel 
+        class="dark:bg-[#2f2f2f] dark:text-white"
         :isLoading="isLoading"
         @action="handleAction"
       />
