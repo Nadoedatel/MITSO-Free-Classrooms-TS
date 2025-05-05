@@ -38,7 +38,7 @@ const loadForm = async (faculty) => {
     isLoading.value = true;
     error.value = null;
 
-    await getForm.getFormFaculty(faculty);
+    await getForm.fetchFacultyForms(faculty);
   } catch (err) {
     error.value = err.message;
     console.error("Ошибка загрузки форм:", err);
@@ -52,7 +52,7 @@ const loadCourse = async (faculty) => {
     isLoading.value = true;
     error.value = null;
 
-    await getCorse.getCourseFaculty(faculty);
+    await getCorse.fetchCourses(faculty);
   } catch (err) {
     error.value = err.message;
     console.error("Ошибка загрузки форм:", err);
@@ -66,7 +66,7 @@ const loadGroup = async (faculty) => {
     isLoading.value = true;
     error.value = null;
 
-    await getGroup.getGroupCourse(faculty);
+    await getGroup.fetchGroups(faculty);
   } catch (err) {
     error.value = err.message;
     console.error("Ошибка загрузки форм:", err);
@@ -80,7 +80,7 @@ const loadSchedule = async (faculty, isSchedule) => {
     isLoading.value = true;
     error.value = null;
 
-    await getSchedule.getScheduleCorrectGroup(faculty, isSchedule);
+    await getSchedule.fetchSchedule(faculty, isSchedule);
   } catch (err) {
     error.value = err.message;
     console.error("Ошибка загрузки форм:", err);
