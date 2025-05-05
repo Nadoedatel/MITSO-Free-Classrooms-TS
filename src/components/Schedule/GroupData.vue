@@ -16,9 +16,8 @@
 import { useStorage } from "@vueuse/core";
 import AppButton from "../UI/AppButton.vue";
 import { ref } from "vue";
-import { useScheduleCorrect } from "@/Composable/useScheduleCorrectGroup";
+import useScheduleCorrect from "@/composable/useScheduleCorrectGroup";
 
-// 1. Определяем структуру по умолчанию
 const defaultGroup = {
   faculty: "",
   form: "",
@@ -62,9 +61,9 @@ const loadSchedule = async (faculty, isSchedule) => {
 };
 
 function group(correctDateGroup) {
-  getSchedule.setCurrentForm({ name: correctDateGroup.form });
-  getSchedule.setCurrentCourse({ name: correctDateGroup.Course });
-  getSchedule.setCurrentGroup({ name: correctDateGroup.Group });
+  getSchedule.setForm({ name: correctDateGroup.form });
+  getSchedule.setCourse({ name: correctDateGroup.Course });
+  getSchedule.setGroup({ name: correctDateGroup.Group });
   loadSchedule(correctDateGroup.faculty, true);
   emit("update-show-schedule", true);
 }

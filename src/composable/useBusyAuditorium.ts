@@ -12,6 +12,7 @@ import { useAuditoriumCheckStore } from "@/stores/checkBusyAuditorium";
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useScheduleGroup } from "@/stores/getScheduleGroup"; // Добавляем импорт
 import { useUserDate } from "@/stores/getUserDate";
+
 export default function useAuditoriumBusyCheck() {
   const checkStore = useAuditoriumCheckStore();
   const scheduleStore = useScheduleGroup(); // Инициализируем хранилище расписания

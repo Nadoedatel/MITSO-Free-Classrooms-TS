@@ -1,35 +1,6 @@
-<template>
-  <div
-    class="p-4 bg-gray-50 rounded-lg justify-items-center dark:bg-[#242424] dark:text-white"
-  >
-    <div
-      class="grid grid-cols-1 gap-4 border rounded-lg p-6 bg-white text-center dark:bg-[#2f2f2f] dark:text-white"
-    >
-      <SelectedFaculty
-        @select-faculty="faculty"
-        :disabled="isLoading"
-      ></SelectedFaculty>
-      <SelectedForm @select-form="form" :disabled="isLoading"></SelectedForm>
-      <SelectedCourse
-        @select-course="course"
-        :disabled="isLoading"
-      ></SelectedCourse>
-      <SelectedGroup
-        @select-group="group"
-        :disabled="isLoading"
-      ></SelectedGroup>
-      <AppButton
-        @click="saveUserGroup"
-        :disabled="isLoading"
-        >Добавить</AppButton
-      >
-    </div>
-  </div>
-</template>
-
 <script setup>
-import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
-import { useFormFaculty } from "@/stores/getFormFaculty";
+import useCourses from "@/composable/useCoursesFaculty";
+import useFacultyForms from "@/composable/useFormFaculty";
 import AppButton from "../UI/AppButton.vue";
 import SelectedFaculty from "./SelectedItem/SelectedFaculty.vue";
 import SelectedForm from "./SelectedItem/SelectedForm.vue";
@@ -37,22 +8,22 @@ import SelectedCourse from "./SelectedItem/SelectedCourse.vue";
 import SelectedGroup from "./SelectedItem/SelectedGroup.vue";
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
-import { useGroupOnCourse } from "@/stores/getGroupCourses";
-import { useScheduleGroup } from "@/stores/getScheduleGroup";
-import { useScheduleCorrectGroup } from "@/stores/getScheduleCorrectGroup";
+import useGroups from "@/composable/useGroupCourse";
+import useSchedule from "@/composable/useScheduleGroup"
+import useScheduleCorrect from "@/composable/useScheduleCorrectGroup";
 
-const getForm = useFormFaculty();
-const getCorse = useCoursesFaculty();
-const getGroup = useGroupOnCourse();
-const getSchedule = useScheduleCorrectGroup();
+const getForm = useFacultyForms();
+const getCorse = useCourses();
+const getGroup = useGroups();
+const getSchedule = useScheduleCorrect();
 const nowFaculty = ref();
 const isLoading = ref(false);
 const error = ref(null);
 
 const emit = defineEmits(["update-show-schedule", "correct-group"]);
 
-const formFacultyStore = useCoursesFaculty();
-const formGroupStore = useGroupOnCourse();
+const formFacultyStore = useCourses();
+const formGroupStore = useGroups();
 
 const { nowForm } = storeToRefs(formFacultyStore);
 const { nowCourse } = storeToRefs(formGroupStore);
@@ -157,3 +128,33 @@ function saveUserGroup() {
   emit("update-show-schedule", true);
 }
 </script>
+
+
+<template>
+  <div
+    class="p-4 bg-gray-50 rounded-lg justify-items-center dark:bg-[#242424] dark:text-white"
+  >
+    <div
+      class="grid grid-cols-1 gap-4 border rounded-lg p-6 bg-white text-center dark:bg-[#2f2f2f] dark:text-white"
+    >
+      <SelectedFaculty
+        @select-faculty="faculty"
+        :disabled="isLoading"
+      ></SelectedFaculty>
+      <SelectedForm @select-form="form" :disabled="isLoading"></SelectedForm>
+      <SelectedCourse
+        @select-course="course"
+        :disabled="isLoading"
+      ></SelectedCourse>
+      <SelectedGroup
+        @select-group="group"
+        :disabled="isLoading"
+      ></SelectedGroup>
+      <AppButton
+        @click="saveUserGroup"
+        :disabled="isLoading"
+        >Добавить</AppButton
+      >
+    </div>
+  </div>
+</template>

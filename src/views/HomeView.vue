@@ -4,7 +4,7 @@ import AuditoriumList from '@/components/Auditoriums/AuditoriumList.vue';
 import PreLoader from '@/components/UI/PreLoader.vue';
 import ControlPanel from '@/components/Auditoriums/ControlPanel.vue';
 import BuildingSelector from '@/components/Auditoriums/BuildingSelector.vue';
-import useAuditoriumBusyCheck from '@/Composable/useBusyAuditorium';
+import useAuditoriumBusyCheck from '@/composable/useBusyAuditorium';
 import { useAuditorium } from '@/stores/objectAuditorium';
 import { useClearLocalStorage } from '@/stores/clearLocalStorage';
 import { useUserDate } from '@/stores/getUserDate';
