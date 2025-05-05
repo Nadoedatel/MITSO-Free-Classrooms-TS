@@ -6,19 +6,17 @@
     >
       {{ userGroups.Group || "Группа не выбрана" }}
     </div>
-    <AppButton class="dark:bg-[#2f2f2f] dark:text-white"  @click="saveUserGroup">Добавить группу</AppButton>
+    <AppButton class="dark:bg-[#2f2f2f] dark:text-white" @click="saveUserGroup"
+      >Добавить группу</AppButton
+    >
   </div>
 </template>
 
 <script setup>
 import { useStorage } from "@vueuse/core";
 import AppButton from "../UI/AppButton.vue";
-import { useScheduleGroup } from "@/stores/getScheduleGroup";
-import { storeToRefs } from "pinia";
-import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
-import { useGroupOnCourse } from "@/stores/getGroupCourses";
 import { ref } from "vue";
-import { useScheduleCorrectGroup } from "@/stores/getScheduleCorrectGroup";
+import { useScheduleCorrect } from "@/Composable/useScheduleCorrectGroup";
 
 // 1. Определяем структуру по умолчанию
 const defaultGroup = {
@@ -33,7 +31,7 @@ const props = defineProps({
 });
 
 const userGroups = useStorage("userGroup", defaultGroup);
-const getSchedule = useScheduleCorrectGroup();
+const getSchedule = useScheduleCorrect();
 
 const emit = defineEmits(["update-show-schedule"]);
 
@@ -54,7 +52,7 @@ const loadSchedule = async (faculty, isSchedule) => {
     isLoading.value = true;
     error.value = null;
 
-    await getSchedule.getScheduleCorrectGroup({name: faculty}, isSchedule);
+    await getSchedule.fetchSchedule({ name: faculty }, isSchedule);
   } catch (err) {
     error.value = err.message;
     console.error("Ошибка загрузки форм:", err);
@@ -64,9 +62,9 @@ const loadSchedule = async (faculty, isSchedule) => {
 };
 
 function group(correctDateGroup) {
-  getSchedule.setCurrentForm({name: correctDateGroup.form})
-  getSchedule.setCurrentCourse({name: correctDateGroup.Course})
-  getSchedule.setCurrentGroup({name: correctDateGroup.Group})
+  getSchedule.setCurrentForm({ name: correctDateGroup.form });
+  getSchedule.setCurrentCourse({ name: correctDateGroup.Course });
+  getSchedule.setCurrentGroup({ name: correctDateGroup.Group });
   loadSchedule(correctDateGroup.faculty, true);
   emit("update-show-schedule", true);
 }
