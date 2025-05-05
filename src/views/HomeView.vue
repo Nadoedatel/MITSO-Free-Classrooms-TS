@@ -61,8 +61,9 @@ const handleAction = async (method: 'init' | 'clear'): Promise<void> => {
   try {
     if (method === 'clear') {
       clearAll();
+    } else {
+      await loadData();
     }
-    await loadData();
   } catch (err) {
     handleError(err, 'Ошибка выполнения действия');
   }
