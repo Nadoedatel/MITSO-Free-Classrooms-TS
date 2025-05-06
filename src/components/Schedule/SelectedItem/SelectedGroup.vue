@@ -1,11 +1,11 @@
 <script setup>
 import { storeToRefs } from "pinia";
-import useGroups from "@/composable/useGroupCourse";
+import { useGroupStore } from "@/stores/getGroupCourses";
 import { ref } from "vue";
 
 const selectedGroup = ref(null);
 
-const formCourseStore = useGroups();
+const formCourseStore = useGroupStore();
 const { arrGroup } = storeToRefs(formCourseStore);
 defineProps({
   disabled: Boolean

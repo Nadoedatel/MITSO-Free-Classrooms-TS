@@ -2,10 +2,10 @@
   import GroupData from "@/components/Schedule/GroupData.vue";
   import ScheduleList from "@/components/Schedule/ScheduleList.vue";
   import ScheduleSelector from "@/components/Schedule/ScheduleSelector.vue";
-  import useScheduleCorrect from "@/composable/useScheduleCorrectGroup";
+  import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
   import { ref } from "vue";
 
-  const scheduleGroup = useScheduleCorrect();
+  const scheduleGroup = useScheduleCorrectStore();
   const showSchedule = ref(false);
   const correctGroup = ref("");
 </script>

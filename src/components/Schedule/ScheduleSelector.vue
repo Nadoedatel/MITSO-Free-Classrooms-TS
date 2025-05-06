@@ -1,6 +1,6 @@
 <script setup>
-import useCourses from "@/composable/useCoursesFaculty";
-import useFacultyForms from "@/composable/useFormFaculty";
+import useCourses from "@/Composable/useCoursesFaculty";
+import useFacultyForms from "@/Composable/useFormFaculty";
 import AppButton from "../UI/AppButton.vue";
 import SelectedFaculty from "./SelectedItem/SelectedFaculty.vue";
 import SelectedForm from "./SelectedItem/SelectedForm.vue";
@@ -8,9 +8,11 @@ import SelectedCourse from "./SelectedItem/SelectedCourse.vue";
 import SelectedGroup from "./SelectedItem/SelectedGroup.vue";
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
-import useGroups from "@/composable/useGroupCourse";
-import useSchedule from "@/composable/useScheduleGroup"
+import useGroups from "@/Composable/useGroupCourse";  
 import useScheduleCorrect from "@/composable/useScheduleCorrectGroup";
+import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
+import { useGroupStore } from "@/stores/getGroupCourses";
+import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
 
 const getForm = useFacultyForms();
 const getCorse = useCourses();
@@ -22,12 +24,13 @@ const error = ref(null);
 
 const emit = defineEmits(["update-show-schedule", "correct-group"]);
 
-const formFacultyStore = useCourses();
-const formGroupStore = useGroups();
+const formFacultyStore = useCoursesFaculty();
+const formGroupStore = useGroupStore();
+const formScheduleStore = useScheduleCorrectStore()
 
 const { nowForm } = storeToRefs(formFacultyStore);
 const { nowCourse } = storeToRefs(formGroupStore);
-const { correctGroup, correctCourse, correctForm } = storeToRefs(getSchedule);
+const { correctGroup, correctCourse, correctForm } = storeToRefs(formScheduleStore);
 
 defineProps({
   isLoading: Boolean,
@@ -129,32 +132,14 @@ function saveUserGroup() {
 }
 </script>
 
-
 <template>
-  <div
-    class="p-4 bg-gray-50 rounded-lg justify-items-center dark:bg-[#242424] dark:text-white"
-  >
-    <div
-      class="grid grid-cols-1 gap-4 border rounded-lg p-6 bg-white text-center dark:bg-[#2f2f2f] dark:text-white"
-    >
-      <SelectedFaculty
-        @select-faculty="faculty"
-        :disabled="isLoading"
-      ></SelectedFaculty>
+  <div class="p-4 bg-gray-50 rounded-lg justify-items-center dark:bg-[#242424] dark:text-white">
+    <div class="grid grid-cols-1 gap-4 border rounded-lg p-6 bg-white text-center dark:bg-[#2f2f2f] dark:text-white">
+      <SelectedFaculty @select-faculty="faculty" :disabled="isLoading"></SelectedFaculty>
       <SelectedForm @select-form="form" :disabled="isLoading"></SelectedForm>
-      <SelectedCourse
-        @select-course="course"
-        :disabled="isLoading"
-      ></SelectedCourse>
-      <SelectedGroup
-        @select-group="group"
-        :disabled="isLoading"
-      ></SelectedGroup>
-      <AppButton
-        @click="saveUserGroup"
-        :disabled="isLoading"
-        >Добавить</AppButton
-      >
+      <SelectedCourse @select-course="course" :disabled="isLoading"></SelectedCourse>
+      <SelectedGroup @select-group="group" :disabled="isLoading"></SelectedGroup>
+      <AppButton @click="saveUserGroup" :disabled="isLoading">Добавить</AppButton>
     </div>
   </div>
 </template>

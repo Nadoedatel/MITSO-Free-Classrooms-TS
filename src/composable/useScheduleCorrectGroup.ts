@@ -27,6 +27,7 @@ export default function useScheduleCorrect() {
     try {
       if (!faculty.name || !store.correctForm?.name || 
           !store.correctCourse?.name || !store.correctGroup?.name) {
+        console.log(faculty.name, store.correctForm?.name, store.correctCourse?.name, store.correctGroup?.name);
         throw new Error("Не все параметры установлены");
       }
 
