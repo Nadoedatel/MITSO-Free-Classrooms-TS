@@ -1,6 +1,6 @@
 <script setup>
-import useCourses from "@/Composable/useCoursesFaculty";
-import useFacultyForms from "@/Composable/useFormFaculty";
+import useCourses from "@/composable/useCoursesFaculty";
+import useFacultyForms from "@/composable/useFormFaculty";
 import AppButton from "../UI/AppButton.vue";
 import SelectedFaculty from "./SelectedItem/SelectedFaculty.vue";
 import SelectedForm from "./SelectedItem/SelectedForm.vue";
@@ -8,7 +8,7 @@ import SelectedCourse from "./SelectedItem/SelectedCourse.vue";
 import SelectedGroup from "./SelectedItem/SelectedGroup.vue";
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
-import useGroups from "@/Composable/useGroupCourse";  
+import useGroups from "@/omposable/useGroupCourse";  
 import useScheduleCorrect from "@/composable/useScheduleCorrectGroup";
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useGroupStore } from "@/stores/getGroupCourses";
