@@ -20,6 +20,7 @@ export const useUserDate = defineStore("userDate", () => {
 
   return {
     getUserCurrentDate,
-    currentDate
+    currentDate,
+    formatDate
   };
 });

@@ -1,17 +1,3 @@
-<template>
-  <div class="justify-center flex gap-3 p-4 dark:bg-[#242424] dark:text-white">
-    <div
-      @click="group(userGroups)"
-      class="px-4 py-2 bg-white border dark:bg-[#2f2f2f] dark:text-white border-gray-300 rounded-md justify-center flex hover:bg-blue-700 hover:text-white transition-colors cursor-pointer"
-    >
-      {{ userGroups.Group || "Группа не выбрана" }}
-    </div>
-    <AppButton class="dark:bg-[#2f2f2f] dark:text-white" @click="saveUserGroup"
-      >Добавить группу</AppButton
-    >
-  </div>
-</template>
-
 <script setup>
 import { useStorage } from "@vueuse/core";
 import AppButton from "../UI/AppButton.vue";
@@ -36,6 +22,7 @@ const emit = defineEmits(["update-show-schedule"]);
 
 const isLoading = ref(false);
 const error = ref(null);
+
 function saveUserGroup() {
   //   userGroup.value = {
   //     faculty: nowFaculty.value.name,
@@ -72,3 +59,17 @@ function group(correctDateGroup) {
 //     emit("update-show-schedule", false);
 // }
 </script>
+
+<template>
+  <div class="justify-center flex gap-3 p-4 dark:bg-[#242424] dark:text-white">
+    <div
+      @click="group(userGroups)"
+      class="px-4 py-2 bg-white border dark:bg-[#2f2f2f] dark:text-white border-gray-300 rounded-md justify-center flex hover:bg-blue-700 hover:text-white transition-colors cursor-pointer"
+    >
+      {{ userGroups.Group || "Группа не выбрана" }}
+    </div>
+    <AppButton class="dark:bg-[#2f2f2f] dark:text-white" @click="saveUserGroup"
+      >Добавить группу</AppButton
+    >
+  </div>
+</template>
