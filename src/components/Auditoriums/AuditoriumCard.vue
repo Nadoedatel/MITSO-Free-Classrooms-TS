@@ -14,10 +14,10 @@ defineProps({
       <div
         v-for="(lesson, time) in schedule"
         :key="time"
-        class="border dark:bg-[#3f3f3f] dark:text-white rounded p-3 transition-all hover:shadow-md hover:shadow-blue-400"
+        class="border rounded p-3 transition-all hover:shadow-md hover:shadow-blue-400"
         :class="{
-          'bg-red-200 border-red-200 hover:shadow-red-400': lesson,
-          'bg-gray-100 border-gray-300': !lesson,
+          'bg-red-200 dark:bg-red-300 border-red-200 hover:shadow-red-400': lesson,
+          'bg-gray-100 dark:bg-[#3f3f3f] dark:text-white border-gray-300': !lesson,
         }"
       >
         <div class="text-sm font-medium dark:text-white text-gray-500 mb-1">

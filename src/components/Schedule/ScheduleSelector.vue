@@ -8,7 +8,7 @@ import SelectedCourse from "./SelectedItem/SelectedCourse.vue";
 import SelectedGroup from "./SelectedItem/SelectedGroup.vue";
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
-import useGroups from "@/omposable/useGroupCourse";  
+import useGroups from "@/composable/useGroupCourse";  
 import useScheduleCorrect from "@/composable/useScheduleCorrectGroup";
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useGroupStore } from "@/stores/getGroupCourses";
