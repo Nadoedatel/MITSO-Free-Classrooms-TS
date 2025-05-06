@@ -1,6 +1,5 @@
 <script setup>
 import useCourses from "@/composable/useCoursesFaculty";
-import useFacultyForms from "@/composable/useFormFaculty";
 import AppButton from "../UI/AppButton.vue";
 import SelectedFaculty from "./SelectedItem/SelectedFaculty.vue";
 import SelectedForm from "./SelectedItem/SelectedForm.vue";
@@ -13,12 +12,13 @@ import useScheduleCorrect from "@/composable/useScheduleCorrectGroup";
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useGroupStore } from "@/stores/getGroupCourses";
 import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
+import useLoadFaculty  from "@/composable/ScheduleSelect/loadFaculty"
 
-const getForm = useFacultyForms();
+const { handleFacultySelect } = useLoadFaculty();
+
 const getCorse = useCourses();
 const getGroup = useGroups();
 const getSchedule = useScheduleCorrect();
-const nowFaculty = ref();
 const isLoading = ref(false);
 const error = ref(null);
 
@@ -36,19 +36,6 @@ defineProps({
   isLoading: Boolean,
 });
 
-const loadForm = async (faculty) => {
-  try {
-    isLoading.value = true;
-    error.value = null;
-
-    await getForm.fetchFacultyForms(faculty);
-  } catch (err) {
-    error.value = err.message;
-    console.error("Ошибка загрузки форм:", err);
-  } finally {
-    isLoading.value = false;
-  }
-};
 
 const loadCourse = async (faculty) => {
   try {
@@ -92,11 +79,6 @@ const loadSchedule = async (faculty, isSchedule) => {
   }
 };
 
-function faculty(method) {
-  nowFaculty.value = method;
-  console.log(method, nowFaculty.value);
-  loadForm(nowFaculty.value);
-}
 
 function form(method) {
   nowForm.value = method;
@@ -135,7 +117,7 @@ function saveUserGroup() {
 <template>
   <div class="p-4 bg-gray-50 rounded-lg justify-items-center dark:bg-[#242424] dark:text-white">
     <div class="grid grid-cols-1 gap-4 border rounded-lg p-6 bg-white text-center dark:bg-[#2f2f2f] dark:text-white">
-      <SelectedFaculty @select-faculty="faculty" :disabled="isLoading"></SelectedFaculty>
+      <SelectedFaculty @select-faculty="handleFacultySelect" :disabled="isLoading"></SelectedFaculty>
       <SelectedForm @select-form="form" :disabled="isLoading"></SelectedForm>
       <SelectedCourse @select-course="course" :disabled="isLoading"></SelectedCourse>
       <SelectedGroup @select-group="group" :disabled="isLoading"></SelectedGroup>
