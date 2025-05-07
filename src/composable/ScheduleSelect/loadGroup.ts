@@ -4,12 +4,15 @@ import { storeToRefs } from "pinia";
 import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
 import type { Course } from "@/types/course";
 import useGroups from "../useGroupCourse";
+import { useGroupStore } from "@/stores/getGroupCourses";
 
 export default function useLoadGroup() {
   const isLoading = ref(false);
   const getGroup = useGroups();
   const formScheduleStore = useScheduleCorrectStore();
   const { correctFaculty, correctCourse } = storeToRefs(formScheduleStore);
+  const formGroupStore = useGroupStore();
+  const { nowCourse } = storeToRefs(formGroupStore);
   const loadGroup = async (faculty: Faculty) => {
     try {
       isLoading.value = true;
@@ -23,6 +26,7 @@ export default function useLoadGroup() {
   };
   
   function handleCourseSelect(course: Course) {
+    nowCourse.value = course
     correctCourse.value = course;
     console.log(course);
     if (!correctFaculty.value) {

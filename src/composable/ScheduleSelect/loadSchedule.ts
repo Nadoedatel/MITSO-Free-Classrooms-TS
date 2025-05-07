@@ -5,7 +5,7 @@ import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
 import type { Group } from "@/types/group";
 import useScheduleCorrect from "../useScheduleCorrectGroup";
 
-export default function useLoadGroup() {
+export default function useLoadSchedule() {
   const isLoading = ref(false);
   const getSchedule = useScheduleCorrect();
   const formScheduleStore = useScheduleCorrectStore();
@@ -24,6 +24,7 @@ export default function useLoadGroup() {
   
   
   function handleGroupSelect(group: Group) {
+    
     correctGroup.value = group;
     console.log(group);
     if (!correctFaculty.value) {

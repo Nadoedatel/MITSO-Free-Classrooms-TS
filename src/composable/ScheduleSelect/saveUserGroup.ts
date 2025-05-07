@@ -6,9 +6,7 @@ export default function useSaveUserGroup() {
   const { correctFaculty, correctGroup, correctCourse, correctForm } =
     storeToRefs(formScheduleStore);
 
-  const emit = defineEmits(["update-show-schedule", "correct-group"]);
-
-  function saveUserGroup() {
+  const saveUserGroup = () => {
     console.log("Сработало");
     const arrUserSchedule = ref({
       faculty: correctFaculty.value?.name,
@@ -17,10 +15,12 @@ export default function useSaveUserGroup() {
       Group: correctGroup.value?.name,
     });
     localStorage.setItem("userGroup", JSON.stringify(arrUserSchedule.value));
-    emit("correct-group", correctGroup.value?.name);
-    emit("update-show-schedule", true);
+    return {
+      groupName: correctGroup.value?.name,
+      scheduleData: arrUserSchedule.value
+    };
   }
   return {
-    saveUserGroup,
+    saveUserGroup
   };
 }

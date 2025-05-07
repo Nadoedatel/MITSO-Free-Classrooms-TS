@@ -5,31 +5,28 @@ import SelectedForm from "./SelectedItem/SelectedForm.vue";
 import SelectedCourse from "./SelectedItem/SelectedCourse.vue";
 import SelectedGroup from "./SelectedItem/SelectedGroup.vue";
 import { ref } from "vue";
-import { storeToRefs } from "pinia";
-import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
 import useLoadFaculty from "@/composable/ScheduleSelect/loadFaculty";
 import useLoadCourse from "@/composable/ScheduleSelect/loadCourse";
 import useLoadGroup from "@/composable/ScheduleSelect/loadGroup";
+import useLoadSchedule from "@/composable/ScheduleSelect/loadSchedule";
 import useSaveUserGroup from "@/composable/ScheduleSelect/saveUserGroup";
 
 const { handleFacultySelect } = useLoadFaculty();
 const { handleFormSelect } = useLoadCourse();
 const { handleCourseSelect } = useLoadGroup();
-const { handleGroupSelect } = useLoadGroup();
-const { saveUserGroup } = useSaveUserGroup
-
-const isLoading = ref(false);
-
+const { handleGroupSelect } = useLoadSchedule();
+const { saveUserGroup } = useSaveUserGroup();
 const emit = defineEmits(["update-show-schedule", "correct-group"]);
-
-const formScheduleStore = useScheduleCorrectStore();
-
-  storeToRefs(formScheduleStore);
+const handleSave = () => {
+  const result = saveUserGroup();
+  emit("correct-group", result.groupName);
+  emit("update-show-schedule", true);
+};
+const isLoading = ref(false);
 
 defineProps({
   isLoading: Boolean,
 });
-
 </script>
 
 <template>
@@ -55,9 +52,7 @@ defineProps({
         @select-group="handleGroupSelect"
         :disabled="isLoading"
       ></SelectedGroup>
-      <AppButton @click="saveUserGroup" :disabled="isLoading"
-        >Добавить</AppButton
-      >
+      <AppButton @click="handleSave" :disabled="isLoading">Добавить</AppButton>
     </div>
   </div>
 </template>
