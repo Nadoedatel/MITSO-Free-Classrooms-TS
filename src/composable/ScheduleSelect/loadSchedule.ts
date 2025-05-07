@@ -2,8 +2,6 @@ import type { Faculty } from "@/types/faculty";
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
-import type { Course } from "@/types/course";
-import useGroups from "../useGroupCourse";
 import type { Group } from "@/types/group";
 import useScheduleCorrect from "../useScheduleCorrectGroup";
 
