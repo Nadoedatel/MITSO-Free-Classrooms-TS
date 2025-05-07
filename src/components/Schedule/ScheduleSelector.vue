@@ -17,10 +17,9 @@ import useLoadGroup from "@/composable/ScheduleSelect/loadGroup";
 const { handleFacultySelect } = useLoadFaculty();
 const { handleFormSelect } = useLoadCourse();
 const { handleCourseSelect } = useLoadGroup();
+const { handleGroupSelect } = useLoadGroup();
 
-const getSchedule = useScheduleCorrect();
 const isLoading = ref(false);
-const error = ref(null);
 
 const emit = defineEmits(["update-show-schedule", "correct-group"]);
 
@@ -37,46 +36,6 @@ defineProps({
   isLoading: Boolean,
 });
 
-const loadGroup = async (faculty) => {
-  try {
-    isLoading.value = true;
-    error.value = null;
-
-    await getGroup.fetchGroups(faculty);
-  } catch (err) {
-    error.value = err.message;
-    console.error("Ошибка загрузки форм:", err);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const loadSchedule = async (faculty, isSchedule) => {
-  try {
-    isLoading.value = true;
-    error.value = null;
-
-    await getSchedule.fetchSchedule(faculty, isSchedule);
-  } catch (err) {
-    error.value = err.message;
-    console.error("Ошибка загрузки форм:", err);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-function course(method) {
-  nowCourse.value = method;
-  correctCourse.value = method;
-  console.log(method);
-  loadGroup(nowFaculty.value);
-}
-
-function group(method) {
-  correctGroup.value = method;
-  console.log(method);
-  loadSchedule(nowFaculty.value, true);
-}
 
 function saveUserGroup() {
   console.log("Сработало");
@@ -112,7 +71,7 @@ function saveUserGroup() {
         :disabled="isLoading"
       ></SelectedCourse>
       <SelectedGroup
-        @select-group="group"
+        @select-group="handleGroupSelect"
         :disabled="isLoading"
       ></SelectedGroup>
       <AppButton @click="saveUserGroup" :disabled="isLoading"
