@@ -1,12 +1,15 @@
 import type { Faculty } from "@/types/faculty";
 import useFacultyForms from "../useFormFaculty";
 import { ref } from "vue";
+import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
+import { storeToRefs } from "pinia";
 
 export default function useLoadFaculty() {
-    const getForm = useFacultyForms();
-    const isLoading = ref(false);
-    const error = ref(null);
-    const currentFaculty = ref<Faculty | null>(null);
+  const getForm = useFacultyForms();
+  const isLoading = ref(false);
+  const error = ref(null);
+  const formScheduleStore = useScheduleCorrectStore();
+  const { correctFaculty } = storeToRefs(formScheduleStore);
   const loadForm = async (faculty: Faculty) => {
     try {
       isLoading.value = true;
@@ -20,14 +23,14 @@ export default function useLoadFaculty() {
     }
   };
 
-   const handleFacultySelect = (faculty: Faculty) => {
-        currentFaculty.value = faculty;
-        console.log("Selected faculty:", faculty);
-        loadForm(faculty);
-    };
+  const handleFacultySelect = (faculty: Faculty) => {
+    correctFaculty.value = faculty;
+    console.log("Selected faculty:", faculty);
+    loadForm(faculty);
+  };
   return {
-    handleFacultySelect, 
-        isLoading,
-        currentFaculty
+    handleFacultySelect,
+    isLoading,
+    correctFaculty,
   };
 }
