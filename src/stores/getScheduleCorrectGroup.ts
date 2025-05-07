@@ -17,6 +17,10 @@ export const useScheduleCorrectStore = defineStore("scheduleCorrect", () => {
     allInfoSchedule.value = data;
   };
 
+  const setFaculty = (faculty: Faculty) => {
+    correctFaculty.value = faculty;
+  };
+
   const setForm = (form: Form) => {
     correctForm.value = form;
   };
@@ -39,5 +43,6 @@ export const useScheduleCorrectStore = defineStore("scheduleCorrect", () => {
     setForm,
     setCourse,
     setGroup,
+    setFaculty
   };
 });

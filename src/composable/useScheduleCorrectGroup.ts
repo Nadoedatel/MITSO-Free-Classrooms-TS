@@ -57,9 +57,11 @@ export default function useScheduleCorrect() {
   return {
     fetchSchedule,
     setForm: store.setForm,
+    setFaculty: store.setFaculty,
     setCourse: store.setCourse,
     setGroup: store.setGroup,
     schedule: computed(() => store.allInfoSchedule),
+    currentFaculty: computed(() => store.correctFaculty),
     currentForm: computed(() => store.correctForm),
     currentCourse: computed(() => store.correctCourse),
     currentGroup: computed(() => store.correctGroup)

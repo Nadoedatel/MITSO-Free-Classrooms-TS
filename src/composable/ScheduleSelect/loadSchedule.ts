@@ -13,7 +13,7 @@ export default function useLoadSchedule() {
   const loadSchedule = async (faculty: Faculty, isSchedule: boolean) => {
     try {
       isLoading.value = true;
-
+      
       await getSchedule.fetchSchedule(faculty, isSchedule);
     } catch (err) {
       console.error("Ошибка загрузки форм:");
@@ -21,7 +21,18 @@ export default function useLoadSchedule() {
       isLoading.value = false;
     }
   };
-  
+
+  function group(correctDateGroup: any) {
+  getSchedule.setFaculty({ name: correctDateGroup.faculty });
+  getSchedule.setForm({ id: correctDateGroup.form, name: correctDateGroup.form });
+  getSchedule.setCourse({ id: correctDateGroup.Course, name: correctDateGroup.Course });
+  getSchedule.setGroup({ id: correctDateGroup.Group, name: correctDateGroup.Group });
+  if (!correctFaculty.value) {
+    console.warn("Факультет не выбран");
+    return;
+  }
+  loadSchedule(correctFaculty.value, true);
+}
   
   function handleGroupSelect(group: Group) {
     
@@ -37,5 +48,6 @@ export default function useLoadSchedule() {
     handleGroupSelect,
     loadSchedule,
     isLoading,
+    group
   };
 }
