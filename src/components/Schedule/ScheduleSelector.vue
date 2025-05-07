@@ -6,18 +6,18 @@ import SelectedCourse from "./SelectedItem/SelectedCourse.vue";
 import SelectedGroup from "./SelectedItem/SelectedGroup.vue";
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
-import useGroups from "@/composable/useGroupCourse";
 import useScheduleCorrect from "@/composable/useScheduleCorrectGroup";
 import { useCoursesFaculty } from "@/stores/getCoursesFaculty";
 import { useGroupStore } from "@/stores/getGroupCourses";
 import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
 import useLoadFaculty from "@/composable/ScheduleSelect/loadFaculty";
 import useLoadCourse from "@/composable/ScheduleSelect/loadCourse";
+import useLoadGroup from "@/composable/ScheduleSelect/loadGroup";
 
 const { handleFacultySelect } = useLoadFaculty();
 const { handleFormSelect } = useLoadCourse();
+const { handleCourseSelect } = useLoadGroup();
 
-const getGroup = useGroups();
 const getSchedule = useScheduleCorrect();
 const isLoading = ref(false);
 const error = ref(null);
@@ -108,7 +108,7 @@ function saveUserGroup() {
         :disabled="isLoading"
       ></SelectedForm>
       <SelectedCourse
-        @select-course="course"
+        @select-course="handleCourseSelect"
         :disabled="isLoading"
       ></SelectedCourse>
       <SelectedGroup
