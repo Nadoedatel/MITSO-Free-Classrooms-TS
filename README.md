@@ -1,1 +1,1 @@
-# MITSO-Free-Classrooms-TS
+# Free Auditorium MITSO
