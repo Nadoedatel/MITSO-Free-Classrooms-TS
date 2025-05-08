@@ -19,7 +19,7 @@ export default function useFacultyForms() {
         throw new Error("Не удалось определить факультет");
       }
       
-      const response = await fetch(`https://apps.mitso.by/frontend/web/schedule/forms?faculty=${formFacultyStore.nowFaculty.name}`);
+      const response = await fetch(`https://cors-anywhere.herokuapp.com/https://apps.mitso.by/frontend/web/schedule/forms?faculty=${formFacultyStore.nowFaculty.name}`);
       const forms: Form[] = await response.json();
       
       formFacultyStore.setForms(forms);

@@ -24,7 +24,7 @@ export default function useCourses() {
       
 
       const response = await fetch(
-        `https://apps.mitso.by/frontend/web/schedule/courses?faculty=${faculty.name}&form=${coursesStore.nowForm?.name}`
+        `https://cors-anywhere.herokuapp.com/https://apps.mitso.by/frontend/web/schedule/courses?faculty=${faculty.name}&form=${coursesStore.nowForm?.name}`
       );
       const course: Course[] = await response.json();
       
