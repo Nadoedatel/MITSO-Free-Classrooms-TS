@@ -24,6 +24,9 @@ export default defineConfig({
     },
   },
   server: {
+    headers: {
+      'Content-Type': 'application/javascript',
+    },
     proxy: {
       '/api': {
         target: 'https://apps.mitso.by',
