@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: mitso-free-classrooms-ts-1
+    name: freeauditoriummitso
     env: node
     buildCommand: npm run build
     startCommand: npm run preview
