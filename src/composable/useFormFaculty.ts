@@ -18,13 +18,8 @@ export default function useFacultyForms() {
       if (!formFacultyStore.nowFaculty?.name) {
         throw new Error("Не удалось определить факультет");
       }
-      const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-      const apiUrl = await fetch(`https://apps.mitso.by/frontend/web/schedule/forms?faculty=${formFacultyStore.nowFaculty.name}`);
-      const response = await fetch(proxyUrl + apiUrl, {
-        headers: {
-          "X-Requested-With": "XMLHttpRequest" // Чтобы CORS Anywhere разрешил запрос
-        }
-      });
+      
+      const response = await fetch(`https://mitso-proxy.onrender.com/api/schedule/forms?faculty=${formFacultyStore.nowFaculty.name}`);
       const forms: Form[] = await response.json();
       
       formFacultyStore.setForms(forms);
