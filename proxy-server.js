@@ -1,8 +1,8 @@
 // proxy-server.js
-const express = require('express');
-const path = require('path');
-const fetch = require('node-fetch');
-const cors = require('cors');
+import express from 'express';
+import { join } from 'path';
+import fetch from 'node-fetch';
+import cors from 'cors';
 
 const app = express();
 app.use(cors());
@@ -30,7 +30,7 @@ app.get('/api/forms', async (req, res) => {
 
 // Fallback для SPA (Vue Router)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  res.sendFile(join(__dirname, 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 10000;
