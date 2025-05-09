@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
-// Отключаем кэширование для API
+// Базовые настройки
 app.use((req, res, next) => {
   res.set({
     'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -28,11 +28,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS с настройками для продакшена
+// CORS
 app.use(cors({
   origin: [
     'https://mitso-free-classrooms-ts.onrender.com',
-    'http://localhost:5173' // для разработки
+    'http://localhost:5173'
   ],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -41,28 +41,90 @@ app.use(cors({
 // Статика
 app.use(express.static(join(__dirname, 'dist')));
 
-// Прокси для API MITSO
+// 1. Получение форм обучения
 app.get('/api/schedule/forms', async (req, res) => {
   try {
     const faculty = encodeURIComponent(req.query.faculty);
     const apiUrl = `https://apps.mitso.by/frontend/web/schedule/forms?faculty=${faculty}`;
     
-    console.log(`Proxying request to: ${apiUrl}`); // Логирование
-    
     const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error(`API responded with status ${response.status}`);
     
-    if (!response.ok) {
-      throw new Error(`API responded with status ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    // Явно указываем Content-Type
     res.set('Content-Type', 'application/json');
-    res.json(data);
+    res.json(await response.json());
     
   } catch (error) {
-    console.error('Proxy error:', error);
+    console.error('Forms proxy error:', error);
+    res.status(500).json({ 
+      error: 'Internal Server Error',
+      details: error.message 
+    });
+  }
+});
+
+// 2. Получение курсов
+app.get('/api/schedule/courses', async (req, res) => {
+  try {
+    const faculty = encodeURIComponent(req.query.faculty);
+    const form = encodeURIComponent(req.query.form);
+    const apiUrl = `https://apps.mitso.by/frontend/web/schedule/courses?faculty=${faculty}&form=${form}`;
+    
+    const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error(`API responded with status ${response.status}`);
+    
+    res.set('Content-Type', 'application/json');
+    res.json(await response.json());
+    
+  } catch (error) {
+    console.error('Courses proxy error:', error);
+    res.status(500).json({ 
+      error: 'Internal Server Error',
+      details: error.message 
+    });
+  }
+});
+
+// 3. Получение групп
+app.get('/api/schedule/groups', async (req, res) => {
+  try {
+    const faculty = encodeURIComponent(req.query.faculty);
+    const form = encodeURIComponent(req.query.form);
+    const course = encodeURIComponent(req.query.course);
+    const apiUrl = `https://apps.mitso.by/frontend/web/schedule/groups?faculty=${faculty}&form=${form}&course=${course}`;
+    
+    const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error(`API responded with status ${response.status}`);
+    
+    res.set('Content-Type', 'application/json');
+    res.json(await response.json());
+    
+  } catch (error) {
+    console.error('Groups proxy error:', error);
+    res.status(500).json({ 
+      error: 'Internal Server Error',
+      details: error.message 
+    });
+  }
+});
+
+// 4. Получение расписания группы
+app.get('/api/schedule/group-schedules', async (req, res) => {
+  try {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(req.query)) {
+      params.append(key, value);
+    }
+    
+    const apiUrl = `https://apps.mitso.by/frontend/web/schedule/group-schedules?${params.toString()}`;
+    
+    const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error(`API responded with status ${response.status}`);
+    
+    res.set('Content-Type', 'application/json');
+    res.json(await response.json());
+    
+  } catch (error) {
+    console.error('Schedule proxy error:', error);
     res.status(500).json({ 
       error: 'Internal Server Error',
       details: error.message 
