@@ -1,11 +1,22 @@
 // proxy-server.js
-import express from 'express';
-import fetch from 'node-fetch';
-import cors from 'cors';
+const express = require('express');
+const path = require('path');
+const fetch = require('node-fetch');
+const cors = require('cors');
 
 const app = express();
 app.use(cors());
 
+// Отдача статики (фронтенд)
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; img-src 'self' data: https://yastatic.net; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'"
+  );
+  next();
+});
+
+// Прокси для API MITSO
 app.get('/api/forms', async (req, res) => {
   try {
     const faculty = encodeURIComponent(req.query.faculty);
@@ -13,10 +24,14 @@ app.get('/api/forms', async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    console.error('Proxy error:', error);
-    res.status(500).json({ error: 'Ошибка при запросе к MITSO API' });
+    res.status(500).json({ error: 'Ошибка прокси' });
   }
 });
 
-const PORT = process.env.PORT || 3001; // Порт 3001, чтобы не конфликтовать с фронтендом
-app.listen(PORT, () => console.log(`Proxy server running on http://localhost:${PORT}`));
+// Fallback для SPA (Vue Router)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
