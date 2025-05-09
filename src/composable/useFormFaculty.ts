@@ -19,7 +19,7 @@ export default function useFacultyForms() {
         throw new Error("Не удалось определить факультет");
       }
       
-      const response = await fetch(`https://mitso-proxy.onrender.com/api/schedule/forms?faculty=${formFacultyStore.nowFaculty.name}`);
+      const response = await fetch(`https://mitso-free-classrooms-ts.onrender.com/api/schedule/forms?faculty=${formFacultyStore.nowFaculty.name}`);
       const forms: Form[] = await response.json();
       
       formFacultyStore.setForms(forms);

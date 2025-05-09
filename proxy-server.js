@@ -1,12 +1,11 @@
-// proxy-server/server.js
-const express = require('express');
-const fetch = require('node-fetch');
-const cors = require('cors');
+// proxy-server.js
+import express from 'express';
+import fetch from 'node-fetch';
+import cors from 'cors';
 
 const app = express();
-app.use(cors()); // Разрешаем запросы с любого домена (можно ограничить своим фронтендом)
+app.use(cors());
 
-// Прокси для /schedule/forms
 app.get('/api/forms', async (req, res) => {
   try {
     const faculty = encodeURIComponent(req.query.faculty);
@@ -19,5 +18,5 @@ app.get('/api/forms', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Proxy server running on port ${PORT}`));
+const PORT = process.env.PORT || 3001; // Порт 3001, чтобы не конфликтовать с фронтендом
+app.listen(PORT, () => console.log(`Proxy server running on http://localhost:${PORT}`));
