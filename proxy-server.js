@@ -1,13 +1,15 @@
-// proxy-server.js
 import express from 'express';
-import { join } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import fetch from 'node-fetch';
 import cors from 'cors';
 
-const app = express();
-app.use(cors());
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-// Отдача статики (фронтенд)
+const app = express();
+
+// CSP headers
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
@@ -16,7 +18,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// Прокси для API MITSO
+app.use(cors());
+app.use(express.static(join(__dirname, 'dist')));
+
+// Proxy endpoint
 app.get('/api/forms', async (req, res) => {
   try {
     const faculty = encodeURIComponent(req.query.faculty);
@@ -24,11 +29,11 @@ app.get('/api/forms', async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: 'Ошибка прокси' });
+    res.status(500).json({ error: 'Proxy error' });
   }
 });
 
-// Fallback для SPA (Vue Router)
+// SPA fallback
 app.get('*', (req, res) => {
   res.sendFile(join(__dirname, 'dist', 'index.html'));
 });
