@@ -1,3 +1,4 @@
+import { fetchScheduleAPI } from "@/constants/API";
 import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
 import type { AllLesson } from "@/types/allLesson";
 import type { Faculty } from "@/types/faculty";
@@ -31,17 +32,7 @@ export default function useScheduleCorrect() {
         throw new Error("Не все параметры установлены");
       }
 
-      const params = new URLSearchParams({
-        faculty: faculty.name,
-        form: store.correctForm.name,
-        course: store.correctCourse.name,
-        group: store.correctGroup.name
-      });
-
-      const response = await fetch(`/api/schedule/group-schedules?${params}`);
-      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-
-      const data = await response.json();
+      const data = await fetchScheduleAPI(faculty.name, store.correctForm.name, store.correctCourse.name, store.correctGroup.name);
 
       if (fullSchedule) {
         const processed = processScheduleData(data);

@@ -5,6 +5,7 @@ import useGroups from "./useGroupCourse";
 import useCourses from "./useCoursesFaculty";
 import useFacultyForms from "./useFormFaculty";
 import { computed } from "vue";
+import { fetchScheduleAPI } from "@/constants/API";
 
 export default function useSchedule() {
   const scheduleStore = useScheduleGroup();
@@ -37,30 +38,17 @@ export default function useSchedule() {
 
   const fetchSchedule = async (faculty: Faculty, fullSchedule = false): Promise<void> => {
     try {
-      // 1. Загрузка цепочки зависимых данных
       await fetchFacultyForms(faculty);
       await fetchCourses(faculty);
       await fetchGroups(faculty);
 
-      // 2. Проверка обязательных параметров
-      if (!currentForm.value?.name || !currentCourse.value?.name || !scheduleStore.nowGroup?.name) {
+      if (!currentForm.value?.name || !currentCourse.value?.name || !scheduleStore.nowGroup?.name) {    
+        // console.log(currentForm.value?.name, currentCourse.value?.name, scheduleStore.nowGroup?.name, "АЛЕ");   
         throw new Error("Не удалось установить все необходимые параметры");
       }
+      
+      const data = await fetchScheduleAPI(faculty.name, currentForm.value.name, currentCourse.value.name, scheduleStore.nowGroup.name);
 
-      // 3. Формирование запроса
-      const params = new URLSearchParams({
-        faculty: faculty.name,
-        form: currentForm.value.name,
-        course: currentCourse.value.name,
-        group: scheduleStore.nowGroup.name
-      });
-
-      const response = await fetch(`/api/schedule/group-schedules?${params}`);
-      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-
-      const data = await response.json();
-
-      // 4. Обработка данных
       if (fullSchedule) {
         const fullData = processScheduleData(data);
         scheduleStore.setFullSchedule(fullData);

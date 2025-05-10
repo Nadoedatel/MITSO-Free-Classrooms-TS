@@ -4,6 +4,7 @@ import useFacultyForms from "./useFormFaculty";
 import { useGroupStore } from "@/stores/getGroupCourses";
 import useCourses from "./useCoursesFaculty";
 import { computed } from "vue";
+import { fetchGroupAPI } from "@/constants/API";
 
 export default function useGroups() {
   const groupsStore = useGroupStore();
@@ -31,16 +32,12 @@ export default function useGroups() {
         throw new Error("Требуемые данные не загружены");
       }
 
-      console.log(
-        `Загрузка групп для формы "${currentForm.value?.name}" и курса "${groupsStore.nowCourse?.name}, Факультет: ${faculty.name}"`
-      );
+      // console.log(
+      //   `Загрузка групп для формы "${currentForm.value?.name}" и курса "${groupsStore.nowCourse?.name}, Факультет: ${faculty.name}"`
+      // );
 
-      const response = await fetch(
-        `/api/schedule/groups?faculty=${faculty.name}&form=${currentForm.value?.name}&course=${groupsStore.nowCourse?.name}`
-      );
-      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-
-      const data: Group[] = await response.json();
+      const data: Group[] = await fetchGroupAPI(faculty.name)
+      
       groupsStore.setGroups(data);
       
       return data;

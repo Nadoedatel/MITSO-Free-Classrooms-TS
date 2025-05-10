@@ -4,6 +4,7 @@ import type { Course } from "@/types/course";
 import { computed } from "vue";
 import type { Faculty } from "@/types/faculty";
 import useFacultyForms from "./useFormFaculty";
+import { fetchCourseAPI } from "@/constants/API";
 
 export default function useCourses() {
   const coursesStore = useCoursesFaculty();
@@ -19,14 +20,8 @@ export default function useCourses() {
       if (!coursesStore.nowForm) {
         coursesStore.setCurrentForm(formStore.arrForm[0]);
       }
-
-      console.log(`Текущая форма обучения: ${coursesStore.nowForm?.name}, Факультет ${faculty.name}`);
-      
-
-      const response = await fetch(
-        `/api/schedule/courses?faculty=${faculty.name}&form=${coursesStore.nowForm?.name}`
-      );
-      const course: Course[] = await response.json();
+      // console.log(`Текущая форма обучения: ${coursesStore.nowForm?.name}, Факультет ${faculty.name}`);
+      const course: Course[] = await fetchCourseAPI(faculty.name)
       
       coursesStore.setCourses(course);
       return course;

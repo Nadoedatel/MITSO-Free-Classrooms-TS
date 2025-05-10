@@ -1,3 +1,4 @@
+import { fetchFacultyAPI } from "@/constants/API";
 import { useFormFaculty } from "@/stores/getFormFaculty";
 import type { Faculty } from "@/types/faculty";
 import type { Form } from "@/types/form";
@@ -19,8 +20,7 @@ export default function useFacultyForms() {
         throw new Error("Не удалось определить факультет");
       }
       
-      const response = await fetch(`/api/schedule/forms?faculty=${formFacultyStore.nowFaculty.name}`);
-      const forms: Form[] = await response.json();
+      const forms: Form[] = await fetchFacultyAPI(formFacultyStore.nowFaculty.name);
       
       formFacultyStore.setForms(forms);
     } catch (error) {
