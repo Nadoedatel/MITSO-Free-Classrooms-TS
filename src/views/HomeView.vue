@@ -93,7 +93,7 @@ watch(
 
 <template>
   <div class="space-y-6 dark:bg-[#2f2f2f] dark:text-white">
-    <div class="flex justify-between items-center dark:bg-[#242424] p-4 rounded">
+    <div class="grid grid-cols-1 gap-4 dark:bg-[#242424] p-4 rounded">
       <input
         type="date"
         v-model="userDateStore.currentDate"
@@ -101,7 +101,7 @@ watch(
         :disabled="isLoading"
       >
       <ControlPanel 
-        class="dark:bg-[#2f2f2f] dark:text-white"
+        class="dark:bg-[#2f2f2f] grid grid-cols-1 md:grid-cols-2 dark:text-white"
         :isLoading="isLoading"
         @action="handleAction"
       />

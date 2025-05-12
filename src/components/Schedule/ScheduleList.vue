@@ -111,7 +111,7 @@ const nextWeek = () => currentWeekOffset.value++;
   <div class="space-y-6 p-4 dark:bg-[#242424] dark:text-white">
     <!-- Панель управления неделями -->
     <div
-      class="flex dark:bg-[#242424] dark:text-white justify-between items-center mb-6 bg-white p-4 rounded-lg shadow"
+      class="grid lg:grid-cols-3 md:grid-cols-3 justify-items-center grid-cols-1 dark:bg-[#242424] dark:text-white   items-center mb-6 bg-white p-4 rounded-lg shadow"
     >
       <button
         @click="prevWeek"
@@ -121,7 +121,7 @@ const nextWeek = () => currentWeekOffset.value++;
         Предыдущая
       </button>
 
-      <h2 class="text-xl dark:bg-[#242424] dark:text-white font-bold text-gray-800">
+      <h2 class="text-xl  dark:bg-[#242424] dark:text-white font-bold text-gray-800">
         {{ weekRange }}
       </h2>
 
