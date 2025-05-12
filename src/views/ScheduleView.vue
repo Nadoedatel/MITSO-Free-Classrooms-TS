@@ -7,6 +7,7 @@
 
   const scheduleGroup = useScheduleCorrectStore();
   const showSchedule = ref(false);
+  const showSelectorGroup = ref(false)
   const correctGroup = ref("");
 </script>
 
@@ -16,11 +17,14 @@
       class="dark:bg-[#2f2f2f] dark:text-white"
       :correctGroup="correctGroup"
       @update-show-schedule="(value) => (showSchedule = value)"
+      @update-show-selector="(value) => (showSelectorGroup = value)"
     ></GroupData>
     <ScheduleSelector
       class="dark:bg-[#2f2f2f] dark:text-white"
+      v-if="showSelectorGroup"
       @correct-group="(value) => (correctGroup = value)"
       @update-show-schedule="(value) => (showSchedule = value)"
+      @update-show-selector="(value) => (showSelectorGroup = value)"
     ></ScheduleSelector>
     <ScheduleList
       class="dark:bg-[#2f2f2f] dark:text-white"

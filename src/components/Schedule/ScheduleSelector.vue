@@ -16,11 +16,12 @@ const { handleFormSelect } = useLoadCourse();
 const { handleCourseSelect } = useLoadGroup();
 const { handleGroupSelect } = useLoadSchedule();
 const { saveUserGroup } = useSaveUserGroup();
-const emit = defineEmits(["update-show-schedule", "correct-group"]);
+const emit = defineEmits(["update-show-schedule", "correct-group", "update-show-selector"]);
 const handleSave = () => {
   const result = saveUserGroup();
   emit("correct-group", result.groupName);
   emit("update-show-schedule", true);
+  emit("update-show-selector", false)
 };
 const isLoading = ref(false);
 

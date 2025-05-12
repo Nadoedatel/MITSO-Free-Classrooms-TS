@@ -1,6 +1,7 @@
 <script setup>
 import useLoadSchedule from "@/composable/ScheduleSelect/loadSchedule";
 import { useStorage } from "@vueuse/core";
+import AppButton from "../UI/AppButton.vue";
 
 const defaultGroup = {
   faculty: "",
@@ -16,8 +17,13 @@ const props = defineProps({
 const userGroups = useStorage("userGroup", defaultGroup);
 const { group } = useLoadSchedule();
 
-const emit = defineEmits(["update-show-schedule"]);
+
+const emit = defineEmits(["update-show-schedule", "update-show-selector"]);
 emit("update-show-schedule", true);
+
+const updateShowSelector = () => {
+  emit("update-show-selector", true)
+}
 </script>
 
 <template>
@@ -28,5 +34,8 @@ emit("update-show-schedule", true);
     >
       {{ userGroups.Group || "Группа не выбрана" }}
     </div>
+    <AppButton v-if="group" @click="updateShowSelector">
+      Добавить группу
+    </AppButton>
   </div>
 </template>
