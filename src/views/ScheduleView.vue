@@ -19,10 +19,7 @@ const scheduleGroup = useScheduleCorrectStore();
 const showSchedule = ref(false);
 const showSelectorGroup = ref(false);
 const correctGroup = computed({
-  get: () => storageGroup.value.Group,
-  set: (value) => {
-    storageGroup.value.Group = value
-  }
+  get: () => storageGroup.value.Group
 })
 </script>
 

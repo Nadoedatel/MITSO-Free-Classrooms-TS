@@ -4,7 +4,7 @@ import AppButton from "../UI/AppButton.vue";
 
 const props = defineProps({
   correctGroup: String,
-  storageGroup: Object
+  storageGroup: Object,
 });
 
 const { group } = useLoadSchedule();
