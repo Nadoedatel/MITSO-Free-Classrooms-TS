@@ -31,6 +31,7 @@ const correctGroup = computed({
     <GroupData
       class="dark:bg-[#2f2f2f] dark:text-white"
       :correctGroup="correctGroup"
+      :storageGroup="storageGroup"
       @update-show-schedule="(value) => (showSchedule = value)"
       @update-show-selector="(value) => (showSelectorGroup = value)"
     ></GroupData>
