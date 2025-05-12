@@ -8,12 +8,12 @@
   "description": "Поиск свободных аудиторий в MITSO",
   "icons": [
     {
-      "src": "icons/logo_app.svg",
-      "sizes": "192x192",
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
       "type": "image/png"
     },
     {
-      "src": "icons/logo_app.svg",
+      "src": "icons/auditoriya_logo_512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
