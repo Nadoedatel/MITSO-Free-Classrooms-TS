@@ -1,14 +1,29 @@
 <script setup>
-  import GroupData from "@/components/Schedule/GroupData.vue";
-  import ScheduleList from "@/components/Schedule/ScheduleList.vue";
-  import ScheduleSelector from "@/components/Schedule/ScheduleSelector.vue";
-  import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
-  import { ref } from "vue";
+import GroupData from "@/components/Schedule/GroupData.vue";
+import ScheduleList from "@/components/Schedule/ScheduleList.vue";
+import ScheduleSelector from "@/components/Schedule/ScheduleSelector.vue";
+import { useScheduleCorrectStore } from "@/stores/getScheduleCorrectGroup";
+import { useStorage } from "@vueuse/core";
+import { computed, ref } from "vue";
 
-  const scheduleGroup = useScheduleCorrectStore();
-  const showSchedule = ref(false);
-  const showSelectorGroup = ref(false)
-  const correctGroup = ref("");
+const defaultGroup = {
+  faculty: "",
+  form: "",
+  Course: "",
+  Group: "",
+};
+
+const storageGroup = useStorage("userGroup", defaultGroup);
+
+const scheduleGroup = useScheduleCorrectStore();
+const showSchedule = ref(false);
+const showSelectorGroup = ref(false);
+const correctGroup = computed({
+  get: () => storageGroup.value.Group,
+  set: (value) => {
+    storageGroup.value.Group = value
+  }
+})
 </script>
 
 <template>
